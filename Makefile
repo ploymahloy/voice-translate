@@ -6,4 +6,4 @@ deps:
 	ln -sfn "$(HOME)/.local/pipx/venvs/pytest" .pipx-pytest
 
 test:
-	pytest -v
+	PYTHONDONTWRITEBYTECODE=1 pytest -v

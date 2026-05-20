@@ -1,10 +1,13 @@
 import io
+import os
 from collections.abc import Mapping
+
+os.environ.setdefault("PYTHONDONTWRITEBYTECODE", "1")
 
 import pytest
 from fastapi.testclient import TestClient
 
-from main import app
+from app.main import app
 
 TRANSLATE_URL = "/translate"
 VALID_TARGET_LANGUAGE = "es"
