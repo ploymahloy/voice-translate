@@ -1,6 +1,7 @@
 import io
 import os
 import tempfile
+import wave
 from collections.abc import Generator, Mapping
 from contextlib import contextmanager
 from pathlib import Path
@@ -8,6 +9,7 @@ from unittest.mock import patch
 
 os.environ.setdefault("PYTHONDONTWRITEBYTECODE", "1")
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,6 +22,14 @@ SUPPORTED_LANGUAGES = ("en", "es", "fr", "de")
 FAKE_VOICE_PROFILE = {"id": "test-profile"}
 FAKE_OUTPUT_AUDIO = b"fake-output-audio-bytes"
 VALID_SOURCE_BYTES = b"\x00\x01\x02"
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+ONE_SECOND_WAV = FIXTURES_DIR / "one_second.wav"
+
+UPSTREAM_FAILURES = (
+    RuntimeError("Gemini API key invalid or expired"),
+    httpx.TimeoutException("Gemini request timed out"),
+)
 
 
 @contextmanager
@@ -67,3 +77,61 @@ def post_translate(
 
 def audio_file(filename: str, content: bytes, content_type: str) -> dict:
     return {"source_audio": (filename, io.BytesIO(content), content_type)}
+
+def _write_one_second_wav(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rate = 16000
+    nframes = rate
+    with wave.open(str(path), "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(rate)
+        wav_file.writeframes(b"\x00\x00" * nframes)
+
+
+def one_second_wav_bytes() -> bytes:
+    if not ONE_SECOND_WAV.is_file():
+        _write_one_second_wav(ONE_SECOND_WAV)
+    return ONE_SECOND_WAV.read_bytes()
+
+
+def one_second_wav_upload() -> dict:
+    return audio_file("one_second.wav", one_second_wav_bytes(), "audio/wav")
+
+
+def post_translate_one_second_wav(
+    client: TestClient,
+    *,
+    target_language: str = VALID_TARGET_LANGUAGE,
+):
+    return post_translate(
+        client,
+        target_language=target_language,
+        files=one_second_wav_upload(),
+    )
+
+
+@contextmanager
+def patch_extract_voice_profile(side_effect) -> Generator[None, None, None]:
+    with patch(
+        "app.services.translate_service.extract_voice_profile",
+        side_effect=side_effect,
+    ):
+        yield
+
+
+def assert_upstream_error_response(response) -> None:
+    assert response.status_code in (500, 503)
+    content_type = response.headers.get("content-type", "")
+    assert "audio/mpeg" not in content_type
+
+
+def assert_audio_mpeg_response(response, *, min_bytes: int = 100) -> None:
+    assert response.status_code == 200
+    assert "audio/mpeg" in response.headers.get("content-type", "")
+    assert len(response.content) >= min_bytes
+
+
+def skip_without_gemini_key() -> None:
+    if not os.environ.get("GEMINI_API_KEY", "").strip():
+        pytest.skip("GEMINI_API_KEY not set")

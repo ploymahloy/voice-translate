@@ -1,4 +1,4 @@
-.PHONY: deps test
+.PHONY: deps test test-integration
 
 deps:
 	pipx install pytest
@@ -6,4 +6,7 @@ deps:
 	ln -sfn "$(HOME)/.local/pipx/venvs/pytest" .pipx-pytest
 
 test:
-	PYTHONDONTWRITEBYTECODE=1 pytest -v
+	PYTHONDONTWRITEBYTECODE=1 pytest -v -m "not integration"
+
+test-integration:
+	PYTHONDONTWRITEBYTECODE=1 pytest -v -m integration
