@@ -26,9 +26,14 @@ VALID_SOURCE_BYTES = b"\x00\x01\x02"
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 ONE_SECOND_WAV = FIXTURES_DIR / "one_second.wav"
 
-UPSTREAM_FAILURES = (
-    RuntimeError("Gemini API key invalid or expired"),
-    httpx.TimeoutException("Gemini request timed out"),
+VOICE_CLONE_UPSTREAM_FAILURES = (
+    RuntimeError("Elevenv3 Voice Clone API key invalid or expired"),
+    httpx.TimeoutException("Voice Clone request timed out"),
+)
+
+ELEVEN_API_UPSTREAM_FAILURES = (
+    RuntimeError("Eleven API key invalid or expired"),
+    httpx.TimeoutException("Eleven API request timed out"),
 )
 
 
@@ -112,9 +117,25 @@ def post_translate_one_second_wav(
 
 
 @contextmanager
-def patch_extract_voice_profile(side_effect) -> Generator[None, None, None]:
+def patch_extract_voice_profile(
+    side_effect=None, *, return_value=None
+) -> Generator[None, None, None]:
+    patch_kwargs: dict = {}
+    if side_effect is not None:
+        patch_kwargs["side_effect"] = side_effect
+    if return_value is not None:
+        patch_kwargs["return_value"] = return_value
     with patch(
         "app.services.translate_service.extract_voice_profile",
+        **patch_kwargs,
+    ):
+        yield
+
+
+@contextmanager
+def patch_translate_and_synthesize(side_effect) -> Generator[None, None, None]:
+    with patch(
+        "app.services.translate_service.translate_and_synthesize",
         side_effect=side_effect,
     ):
         yield
@@ -132,6 +153,6 @@ def assert_audio_mpeg_response(response, *, min_bytes: int = 100) -> None:
     assert len(response.content) >= min_bytes
 
 
-def skip_without_gemini_key() -> None:
-    if not os.environ.get("GEMINI_API_KEY", "").strip():
-        pytest.skip("GEMINI_API_KEY not set")
+def skip_without_elevenv3_key() -> None:
+    if not os.environ.get("ELEVENV3_API_KEY", "").strip():
+        pytest.skip("ELEVENV3_API_KEY not set")
