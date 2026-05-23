@@ -12,7 +12,6 @@ from tests.conftest import (
     post_translate_one_second_wav,
 )
 
-
 def test_output_validity_non_zero_size_and_valid_audio_header(client):
     with patch_extract_voice_profile(return_value=FAKE_VOICE_PROFILE):
         with patch_translate_and_synthesize(return_value=FAKE_OUTPUT_AUDIO):
@@ -22,7 +21,6 @@ def test_output_validity_non_zero_size_and_valid_audio_header(client):
     content_type = response.headers.get("content-type", "").split(";")[0].strip()
     assert content_type in EXPECTED_OUTPUT_MEDIA_TYPES
     assert_output_validity(response.content)
-
 
 def test_output_duration_matches_input_within_tolerance(client):
     with patch_extract_voice_profile(return_value=FAKE_VOICE_PROFILE):

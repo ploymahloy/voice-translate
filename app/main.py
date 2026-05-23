@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Annotated
-
 import httpx
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
@@ -10,7 +9,6 @@ from app.audio_quality import detect_output_format, media_type_for_format
 from app.services.translate_service import run_translation
 
 app = FastAPI()
-
 
 @app.post("/translate")
 async def translate(

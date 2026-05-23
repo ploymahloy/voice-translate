@@ -8,13 +8,11 @@ from tests.conftest import (
     response_detail_text,
 )
 
-
 def test_missing_source_audio_file(client):
     response = post_translate(client, target_language=VALID_TARGET_LANGUAGE)
 
     assert response.status_code == 400
     assert "Missing source audio file" in response_detail_text(response)
-
 
 @pytest.mark.parametrize(
     "filename,content,content_type",
@@ -34,7 +32,6 @@ def test_unsupported_file_format(client, filename, content, content_type):
     detail = response_detail_text(response).lower()
     assert "unsupported" in detail or "format" in detail
 
-
 @pytest.mark.parametrize("target_language", ["Elvish", ""])
 def test_invalid_target_language(client, target_language):
     response = post_translate(
@@ -46,7 +43,6 @@ def test_invalid_target_language(client, target_language):
     assert response.status_code == 422
     detail = response_detail_text(response).lower()
     assert "supported" in detail or all(lang in detail for lang in SUPPORTED_LANGUAGES)
-
 
 def test_empty_audio_file(client):
     response = post_translate(

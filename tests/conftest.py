@@ -39,7 +39,6 @@ ELEVEN_API_UPSTREAM_FAILURES = (
     httpx.TimeoutException("Eleven API request timed out"),
 )
 
-
 @contextmanager
 def track_mkstemp() -> Generator[list[str], None, None]:
     created: list[str] = []
@@ -61,14 +60,12 @@ def track_mkstemp() -> Generator[list[str], None, None]:
 def client() -> TestClient:
     return TestClient(app)
 
-
 def response_detail_text(response) -> str:
     body = response.json()
     detail = body.get("detail", "")
     if isinstance(detail, list):
         return " ".join(str(item) for item in detail)
     return str(detail)
-
 
 def post_translate(
     client: TestClient,
@@ -95,10 +92,8 @@ def write_wav_fixture(path: Path, duration_seconds: float, *, rate: int = 16000)
         wav_file.setframerate(rate)
         wav_file.writeframes(b"\x00\x00" * nframes)
 
-
 def _write_one_second_wav(path: Path) -> None:
     write_wav_fixture(path, 1.0)
-
 
 def wav_bytes_for_duration(duration_seconds: float, *, rate: int = 16000) -> bytes:
     buffer = io.BytesIO()
@@ -110,16 +105,13 @@ def wav_bytes_for_duration(duration_seconds: float, *, rate: int = 16000) -> byt
         wav_file.writeframes(b"\x00\x00" * nframes)
     return buffer.getvalue()
 
-
 def one_second_wav_bytes() -> bytes:
     if not ONE_SECOND_WAV.is_file():
         _write_one_second_wav(ONE_SECOND_WAV)
     return ONE_SECOND_WAV.read_bytes()
 
-
 def one_second_wav_upload() -> dict:
     return audio_file("one_second.wav", one_second_wav_bytes(), "audio/wav")
-
 
 def post_translate_one_second_wav(
     client: TestClient,
@@ -131,7 +123,6 @@ def post_translate_one_second_wav(
         target_language=target_language,
         files=one_second_wav_upload(),
     )
-
 
 @contextmanager
 def patch_extract_voice_profile(
@@ -148,7 +139,6 @@ def patch_extract_voice_profile(
     ):
         yield
 
-
 @contextmanager
 def patch_translate_and_synthesize(
     side_effect=None, *, return_value=None
@@ -164,12 +154,10 @@ def patch_translate_and_synthesize(
     ):
         yield
 
-
 def assert_upstream_error_response(response) -> None:
     assert response.status_code in (500, 503)
     content_type = response.headers.get("content-type", "").split(";")[0].strip()
     assert content_type not in SUCCESS_AUDIO_MEDIA_TYPES
-
 
 def assert_valid_audio_response(response, *, min_bytes: int = 100) -> None:
     assert response.status_code == 200
@@ -177,7 +165,6 @@ def assert_valid_audio_response(response, *, min_bytes: int = 100) -> None:
     assert content_type in SUCCESS_AUDIO_MEDIA_TYPES
     assert_output_validity(response.content)
     assert len(response.content) >= min_bytes
-
 
 def skip_without_elevenv3_key() -> None:
     if not os.environ.get("ELEVENV3_API_KEY", "").strip():

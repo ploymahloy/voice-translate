@@ -8,13 +8,11 @@ from app.audio_quality import (
 
 EXPECTED_OUTPUT_MEDIA_TYPES = frozenset({"audio/mp3", "audio/wav"})
 
-
 def assert_output_validity(data: bytes) -> None:
     assert len(data) > 0, "Output audio is empty"
     assert is_valid_output_audio(data), (
         "Output audio has no valid MP3 or WAV header"
     )
-
 
 def assert_duration_within_tolerance(
     input_bytes: bytes,
@@ -30,7 +28,6 @@ def assert_duration_within_tolerance(
         f"Output duration {output_duration:.2f}s differs from input "
         f"{input_duration:.2f}s by more than {tolerance:.2f}s"
     )
-
 
 __all__ = [
     "EXPECTED_OUTPUT_MEDIA_TYPES",

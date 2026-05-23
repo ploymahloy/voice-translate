@@ -6,9 +6,7 @@ from tests.conftest import (
     FAKE_VOICE_PROFILE,
     VALID_SOURCE_BYTES,
 )
-
 from app.services.translate_service import run_translation
-
 
 @patch("app.services.translate_service.translate_and_synthesize")
 @patch("app.services.translate_service.extract_voice_profile")

@@ -2,7 +2,6 @@ import os
 import time
 import uuid
 from pathlib import Path
-
 import httpx
 
 _BASE_URL = "https://api.elevenlabs.io"
@@ -15,19 +14,15 @@ _ELEVEN_API_AUTH_ERROR = "Eleven API key invalid or expired"
 _VOICE_CLONE_TIMEOUT = "Voice Clone request timed out"
 _ELEVEN_API_TIMEOUT = "Eleven API request timed out"
 
-
 def _api_key() -> str:
     return os.environ.get("ELEVENV3_API_KEY", "").strip()
-
 
 def _headers() -> dict[str, str]:
     return {"xi-api-key": _api_key()}
 
-
 def _map_auth_error(exc: httpx.HTTPStatusError, *, eleven_api: bool) -> RuntimeError:
     message = _ELEVEN_API_AUTH_ERROR if eleven_api else _VOICE_CLONE_AUTH_ERROR
     return RuntimeError(message)
-
 
 def _voice_clone_request(
     method: str, url: str, **kwargs
@@ -46,7 +41,6 @@ def _voice_clone_request(
             raise _map_auth_error(exc, eleven_api=False) from exc
         raise
 
-
 def _eleven_request(method: str, url: str, **kwargs) -> httpx.Response:
     try:
         with httpx.Client(
@@ -61,7 +55,6 @@ def _eleven_request(method: str, url: str, **kwargs) -> httpx.Response:
         if exc.response.status_code in (401, 403):
             raise _map_auth_error(exc, eleven_api=True) from exc
         raise
-
 
 def extract_voice_profile(audio_path: str) -> dict:
     if not _api_key():
@@ -115,7 +108,6 @@ def _dub_audio(audio_path: str, target_language: str) -> bytes:
         "GET", f"/v1/dubbing/{dubbing_id}/audio/{target_language}"
     )
     return audio_response.content
-
 
 def translate_and_synthesize(
     profile: dict, target_language: str, audio_path: str

@@ -1,17 +1,14 @@
-from pathlib import Path
-from unittest.mock import patch
-
 import pytest
+from pathlib import Path
 
+from unittest.mock import patch
 from tests.conftest import (
     FAKE_OUTPUT_AUDIO,
     FAKE_VOICE_PROFILE,
     VALID_SOURCE_BYTES,
     track_mkstemp,
 )
-
 from app.services.translate_service import run_translation
-
 
 @patch("app.services.translate_service.translate_and_synthesize")
 @patch("app.services.translate_service.extract_voice_profile")
@@ -28,7 +25,6 @@ def test_temp_files_removed_on_success(mock_extract, mock_translate):
 
     for path in created:
         assert not Path(path).exists()
-
 
 @patch("app.services.translate_service.translate_and_synthesize")
 @patch("app.services.translate_service.extract_voice_profile")
