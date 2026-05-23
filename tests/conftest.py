@@ -83,15 +83,29 @@ def post_translate(
 def audio_file(filename: str, content: bytes, content_type: str) -> dict:
     return {"source_audio": (filename, io.BytesIO(content), content_type)}
 
-def _write_one_second_wav(path: Path) -> None:
+def write_wav_fixture(path: Path, duration_seconds: float, *, rate: int = 16000) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    rate = 16000
-    nframes = rate
+    nframes = int(rate * duration_seconds)
     with wave.open(str(path), "wb") as wav_file:
         wav_file.setnchannels(1)
         wav_file.setsampwidth(2)
         wav_file.setframerate(rate)
         wav_file.writeframes(b"\x00\x00" * nframes)
+
+
+def _write_one_second_wav(path: Path) -> None:
+    write_wav_fixture(path, 1.0)
+
+
+def wav_bytes_for_duration(duration_seconds: float, *, rate: int = 16000) -> bytes:
+    buffer = io.BytesIO()
+    nframes = int(rate * duration_seconds)
+    with wave.open(buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(rate)
+        wav_file.writeframes(b"\x00\x00" * nframes)
+    return buffer.getvalue()
 
 
 def one_second_wav_bytes() -> bytes:
@@ -133,10 +147,17 @@ def patch_extract_voice_profile(
 
 
 @contextmanager
-def patch_translate_and_synthesize(side_effect) -> Generator[None, None, None]:
+def patch_translate_and_synthesize(
+    side_effect=None, *, return_value=None
+) -> Generator[None, None, None]:
+    patch_kwargs: dict = {}
+    if side_effect is not None:
+        patch_kwargs["side_effect"] = side_effect
+    if return_value is not None:
+        patch_kwargs["return_value"] = return_value
     with patch(
         "app.services.translate_service.translate_and_synthesize",
-        side_effect=side_effect,
+        **patch_kwargs,
     ):
         yield
 
