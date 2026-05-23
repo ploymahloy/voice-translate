@@ -14,6 +14,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from tests.audio_helpers import assert_output_validity
+
+SUCCESS_AUDIO_MEDIA_TYPES = frozenset({"audio/mp3", "audio/wav"})
 
 TRANSLATE_URL = "/translate"
 VALID_TARGET_LANGUAGE = "es"
@@ -164,13 +167,15 @@ def patch_translate_and_synthesize(
 
 def assert_upstream_error_response(response) -> None:
     assert response.status_code in (500, 503)
-    content_type = response.headers.get("content-type", "")
-    assert "audio/mpeg" not in content_type
+    content_type = response.headers.get("content-type", "").split(";")[0].strip()
+    assert content_type not in SUCCESS_AUDIO_MEDIA_TYPES
 
 
-def assert_audio_mpeg_response(response, *, min_bytes: int = 100) -> None:
+def assert_valid_audio_response(response, *, min_bytes: int = 100) -> None:
     assert response.status_code == 200
-    assert "audio/mpeg" in response.headers.get("content-type", "")
+    content_type = response.headers.get("content-type", "").split(";")[0].strip()
+    assert content_type in SUCCESS_AUDIO_MEDIA_TYPES
+    assert_output_validity(response.content)
     assert len(response.content) >= min_bytes
 
 

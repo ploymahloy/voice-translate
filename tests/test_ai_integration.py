@@ -4,7 +4,7 @@ from tests.conftest import (
     ELEVEN_API_UPSTREAM_FAILURES,
     FAKE_VOICE_PROFILE,
     VOICE_CLONE_UPSTREAM_FAILURES,
-    assert_audio_mpeg_response,
+    assert_valid_audio_response,
     assert_upstream_error_response,
     patch_extract_voice_profile,
     patch_translate_and_synthesize,
@@ -32,4 +32,4 @@ def test_eleven_api_upstream_failure_returns_5xx(client, side_effect):
 def test_translate_happy_path_real_elevenlabs(client):
     skip_without_elevenv3_key()
     response = post_translate_one_second_wav(client)
-    assert_audio_mpeg_response(response)
+    assert_valid_audio_response(response)

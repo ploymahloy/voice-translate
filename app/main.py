@@ -6,6 +6,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
 from app.dependencies import ALLOWED_AUDIO_EXTENSIONS, SUPPORTED_LANGUAGES
+from app.audio_quality import detect_output_format, media_type_for_format
 from app.services.translate_service import run_translation
 
 app = FastAPI()
@@ -47,4 +48,5 @@ async def translate(
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Translation failed") from exc
 
-    return Response(content=audio_bytes, media_type="audio/mpeg")
+    fmt = detect_output_format(audio_bytes) or "mp3"
+    return Response(content=audio_bytes, media_type=media_type_for_format(fmt))

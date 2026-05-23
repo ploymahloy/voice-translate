@@ -3,6 +3,7 @@ import tempfile
 from pathlib import Path
 
 from app.ai import extract_voice_profile, translate_and_synthesize
+from app.audio_quality import ensure_output_quality
 
 
 def run_translation(
@@ -17,7 +18,8 @@ def run_translation(
         with os.fdopen(fd, "wb") as f:
             f.write(source_audio)
         profile = extract_voice_profile(input_path)
-        return translate_and_synthesize(profile, target_language, input_path)
+        raw_output = translate_and_synthesize(profile, target_language, input_path)
+        return ensure_output_quality(source_audio, raw_output)
     finally:
         for path in paths_to_clean:
             try:
