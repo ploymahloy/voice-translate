@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 .pipx-pytest
 .vscode/
+.env
+.DS_Store

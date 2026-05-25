@@ -4,11 +4,30 @@ import httpx
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 
+from app.env import load_env_file
+
+load_env_file()
+
 from app.dependencies import ALLOWED_AUDIO_EXTENSIONS, SUPPORTED_LANGUAGES
 from app.audio_quality import detect_output_format, media_type_for_format
 from app.services.translate_service import run_translation
 
 app = FastAPI()
+
+
+@app.get("/")
+def root():
+    return {
+        "service": "voice-translate",
+        "docs": "/docs",
+        "translate": "POST /translate",
+    }
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 @app.post("/translate")
 async def translate(

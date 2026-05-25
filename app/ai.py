@@ -1,4 +1,5 @@
 import os
+import tempfile
 import time
 import uuid
 from pathlib import Path
@@ -109,8 +110,52 @@ def _dub_audio(audio_path: str, target_language: str) -> bytes:
     )
     return audio_response.content
 
+
+_STS_MODEL_ID = "eleven_multilingual_sts_v2"
+_STS_OUTPUT_FORMAT = "mp3_44100_128"
+
+
+def _apply_cloned_voice(voice_id: str, dubbed_audio: bytes) -> bytes:
+    if not _api_key():
+        raise RuntimeError(_ELEVEN_API_AUTH_ERROR)
+
+    fd, dubbed_path = tempfile.mkstemp(suffix=".mp3")
+    try:
+        with os.fdopen(fd, "wb") as dubbed_file:
+            dubbed_file.write(dubbed_audio)
+        with open(dubbed_path, "rb") as audio_file:
+            response = _eleven_request(
+                "POST",
+                f"/v1/speech-to-speech/{voice_id}",
+                params={"output_format": _STS_OUTPUT_FORMAT},
+                data={"model_id": _STS_MODEL_ID},
+                files={"audio": ("dubbed.mp3", audio_file, "audio/mpeg")},
+            )
+    finally:
+        try:
+            os.unlink(dubbed_path)
+        except OSError:
+            pass
+
+    return response.content
+
+
+def delete_voice_profile(profile: dict) -> None:
+    voice_id = profile.get("id")
+    if not voice_id or not _api_key():
+        return
+    try:
+        _voice_clone_request("DELETE", f"/v1/voices/{voice_id}")
+    except (httpx.HTTPError, RuntimeError):
+        pass
+
+
 def translate_and_synthesize(
     profile: dict, target_language: str, audio_path: str
 ) -> bytes:
-    _ = profile  # dubbing uses source audio; profile kept for orchestration contract
-    return _dub_audio(audio_path, target_language)
+    voice_id = profile.get("id")
+    if not voice_id:
+        raise RuntimeError("Voice profile missing voice id")
+
+    dubbed = _dub_audio(audio_path, target_language)
+    return _apply_cloned_voice(voice_id, dubbed)
