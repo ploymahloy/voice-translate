@@ -1,0 +1,149 @@
+---
+import {
+  ALLOWED_AUDIO_EXTENSIONS,
+  LANGUAGE_LABELS,
+  MAX_UPLOAD_LABEL,
+  SUPPORTED_LANGUAGES,
+} from '../../lib/constants';
+
+const acceptExtensions = ALLOWED_AUDIO_EXTENSIONS.join(',');
+---
+
+<form class="translate-form" id="translate-form">
+  <div class="field">
+    <label for="source_audio">Source audio</label>
+    <span class="hint">
+      {ALLOWED_AUDIO_EXTENSIONS.join(', ')} — max {MAX_UPLOAD_LABEL}
+    </span>
+    <input
+      type="file"
+      id="source_audio"
+      name="source_audio"
+      accept={acceptExtensions}
+      required
+    />
+  </div>
+
+  <div class="field">
+    <label for="target_language">Target language</label>
+    <select id="target_language" name="target_language" required>
+      {SUPPORTED_LANGUAGES.map((code) => (
+        <option value={code}>{LANGUAGE_LABELS[code]}</option>
+      ))}
+    </select>
+  </div>
+
+  <button type="submit" id="submit-btn">Translate</button>
+
+  <p class="status" id="status" hidden></p>
+
+  <section class="result" id="result" hidden>
+    <h2>Translation</h2>
+    <audio id="result-audio" controls></audio>
+    <a class="download-link" id="download-link" href="#" download="translated-audio">
+      Download audio
+    </a>
+  </section>
+</form>
+
+<script>
+  import { translateAudio, resolveDevApiKey } from '../../lib/api';
+  import { DEFAULT_MAX_UPLOAD_BYTES } from '../../lib/constants';
+
+  const form = document.getElementById('translate-form') as HTMLFormElement;
+  const fileInput = document.getElementById('source_audio') as HTMLInputElement;
+  const languageSelect = document.getElementById('target_language') as HTMLSelectElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const statusEl = document.getElementById('status') as HTMLParagraphElement;
+  const resultSection = document.getElementById('result') as HTMLElement;
+  const audioEl = document.getElementById('result-audio') as HTMLAudioElement;
+  const downloadLink = document.getElementById('download-link') as HTMLAnchorElement;
+
+  let resultUrl: string | null = null;
+
+  function setStatus(message: string, isError = false) {
+    statusEl.hidden = false;
+    statusEl.textContent = message;
+    statusEl.classList.toggle('error', isError);
+  }
+
+  function clearStatus() {
+    statusEl.hidden = true;
+    statusEl.textContent = '';
+    statusEl.classList.remove('error');
+  }
+
+  function clearResult() {
+    if (resultUrl) {
+      URL.revokeObjectURL(resultUrl);
+      resultUrl = null;
+    }
+    resultSection.hidden = true;
+    audioEl.removeAttribute('src');
+    downloadLink.removeAttribute('href');
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearResult();
+    clearStatus();
+
+    const file = fileInput.files?.[0];
+    if (!file) {
+      setStatus('Please choose an audio file.', true);
+      return;
+    }
+
+    if (file.size > DEFAULT_MAX_UPLOAD_BYTES) {
+      setStatus(
+        `File exceeds maximum size of ${DEFAULT_MAX_UPLOAD_BYTES} bytes.`,
+        true,
+      );
+      return;
+    }
+
+    const ext = file.name.includes('.')
+      ? `.${file.name.split('.').pop()?.toLowerCase()}`
+      : '';
+    const allowed = ['.wav', '.mp3', '.m4a', '.ogg', '.webm'];
+    if (!allowed.includes(ext)) {
+      setStatus('Unsupported audio format.', true);
+      return;
+    }
+
+    submitBtn.disabled = true;
+    const startedAt = Date.now();
+    const tickStatus = () => {
+      const seconds = Math.floor((Date.now() - startedAt) / 1000);
+      setStatus(
+        `Translating… ${seconds}s elapsed (often 30–90s; still working if this increases).`,
+      );
+    };
+    tickStatus();
+    const statusTimer = window.setInterval(tickStatus, 1000);
+
+    try {
+      const { blob, contentType } = await translateAudio(
+        file,
+        languageSelect.value,
+        { apiKey: resolveDevApiKey() },
+      );
+
+      resultUrl = URL.createObjectURL(blob);
+      audioEl.src = resultUrl;
+      const extension = contentType.includes('wav') ? 'wav' : 'mp3';
+      downloadLink.href = resultUrl;
+      downloadLink.download = `translated.${extension}`;
+      resultSection.hidden = false;
+      clearStatus();
+      setStatus('Translation complete.');
+      statusEl.classList.remove('error');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Translation failed.';
+      setStatus(message, true);
+    } finally {
+      window.clearInterval(statusTimer);
+      submitBtn.disabled = false;
+    }
+  });
+</script>

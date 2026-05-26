@@ -13,7 +13,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import create_app
 from tests.audio_helpers import assert_output_validity
 
 SUCCESS_AUDIO_MEDIA_TYPES = frozenset({"audio/mp3", "audio/wav"})
@@ -45,6 +45,11 @@ def valid_output_wav_bytes() -> bytes:
 @pytest.fixture(autouse=True)
 def _clear_service_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("SERVICE_API_KEY", raising=False)
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+
+@pytest.fixture
+def client() -> TestClient:
+    return TestClient(create_app())
 
 @contextmanager
 def track_mkstemp() -> Generator[list[str], None, None]:
@@ -61,10 +66,6 @@ def track_mkstemp() -> Generator[list[str], None, None]:
         side_effect=recording_mkstemp,
     ):
         yield created
-
-@pytest.fixture
-def client() -> TestClient:
-    return TestClient(app)
 
 def response_detail_text(response) -> str:
     body = response.json()

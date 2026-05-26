@@ -122,8 +122,44 @@ Translation is not instant. The service clones a voice profile from your upload,
 | `ELEVENV3_API_KEY` | Yes | ElevenLabs API key used for voice clone, dubbing, and speech-to-speech |
 | `SERVICE_API_KEY` | No | When set, clients must send matching `X-API-Key` on `/translate` |
 | `MAX_UPLOAD_BYTES` | No | Maximum upload size in bytes (default: 26214400, 25 MiB) |
+| `CORS_ORIGINS` | No | Comma-separated browser origins allowed for the web client (default: `http://localhost:4321`) |
 
 If the key is missing or invalid, `/translate` returns **503** with an authentication-related message.
+
+## Web client
+
+An Astro + TypeScript UI lives in [`client/`](client/). It uploads audio and calls the API from the browser.
+
+### Local development
+
+Use two terminals:
+
+```bash
+make run          # API on http://localhost:8000
+make client-dev   # UI on http://localhost:4321 (proxies /api → API)
+```
+
+Install client dependencies once:
+
+```bash
+make client-install
+```
+
+Copy [`client/.env.example`](client/.env.example) to `client/.env` if you need a production API URL or a dev-only `PUBLIC_DEV_API_KEY` when `SERVICE_API_KEY` is set on the API.
+
+### Production deployment
+
+- **Client:** build static assets with `make client-build` and deploy `client/dist/` to your static host.
+- **API:** set `CORS_ORIGINS` to your deployed app origin(s), e.g. `https://your-app.vercel.app`.
+- **Client env:** set `PUBLIC_API_BASE_URL` to your API origin (no trailing slash), e.g. `https://api.your-domain.com`.
+
+Do not set `PUBLIC_DEV_API_KEY` or `SERVICE_API_KEY` for public browser traffic—the key would be visible to users. Leave `SERVICE_API_KEY` unset in production unless you add server-side auth later.
+
+### Client tests
+
+```bash
+make client-test
+```
 
 ## Verifying the installation
 
@@ -141,7 +177,7 @@ For a full end-to-end test against the real ElevenLabs API (slow, uses quota):
 ELEVENV3_API_KEY=your_key make test-integration
 ```
 
-Unit tests and typecheck (no ElevenLabs calls):
+Unit tests, typecheck, and client tests (no ElevenLabs calls):
 
 ```bash
 make check
@@ -152,6 +188,7 @@ Or separately:
 ```bash
 make test
 make typecheck
+make client-test
 ```
 
 ## Troubleshooting

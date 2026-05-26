@@ -1,0 +1,29 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Voice Translate' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Translate spoken audio while preserving the speaker's voice." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Voice Translate</h1>
+      <p class="tagline">Upload audio, choose a language, keep the speaker's voice.</p>
+    </header>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
