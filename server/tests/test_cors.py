@@ -50,3 +50,19 @@ def test_translate_preflight_allows_post_and_api_key_header(monkeypatch):
     assert "POST" in allow_methods
     allow_headers = response.headers.get("access-control-allow-headers", "").lower()
     assert "x-api-key" in allow_headers
+
+def test_preflight_vercel_origin_with_default_config(monkeypatch):
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+    client = TestClient(create_app())
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": "https://voice-translate-flax.vercel.app",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert response.status_code == 200
+    assert (
+        response.headers.get("access-control-allow-origin")
+        == "https://voice-translate-flax.vercel.app"
+    )

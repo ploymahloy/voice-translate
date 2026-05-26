@@ -18,7 +18,10 @@ def service_api_key() -> str:
     return os.environ.get("SERVICE_API_KEY", "").strip()
 
 
-_DEFAULT_CORS_ORIGINS = ("http://localhost:4321",)
+_DEFAULT_CORS_ORIGINS = (
+    "http://localhost:4321",
+    "https://voice-translate-flax.vercel.app",
+)
 
 
 def cors_allow_origins() -> list[str]:
