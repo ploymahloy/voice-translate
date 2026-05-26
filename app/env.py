@@ -4,7 +4,6 @@ from pathlib import Path
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _DEFAULT_ENV_FILE = _PROJECT_ROOT / ".env"
 
-
 def load_env_file(path: Path | None = None) -> None:
     env_path = path if path is not None else _DEFAULT_ENV_FILE
     if not env_path.is_file():

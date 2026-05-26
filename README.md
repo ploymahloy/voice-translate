@@ -20,7 +20,7 @@ From the project directory:
 pip install -r requirements.txt
 ```
 
-Or, if you use the project Makefile:
+Or, if you use the project Makefile (creates `.venv` and installs dependencies):
 
 ```bash
 make deps
@@ -86,6 +86,7 @@ A successful response is raw audio (typically MP3). Save it with `--output` as s
 |----------|--------|---------|
 | `/` | GET | Service info and links |
 | `/health` | GET | Liveness check (`{"status":"ok"}`) |
+| `/ready` | GET | Readiness check (API key configured) |
 | `/translate` | POST | Upload audio and receive translation |
 | `/docs` | GET | Interactive API documentation (Swagger UI) |
 
@@ -94,8 +95,11 @@ A successful response is raw audio (typically MP3). Save it with `--output` as s
 | Status | Meaning |
 |--------|---------|
 | 400 | Missing file, empty file, or invalid upload |
+| 401 | Missing or invalid `X-API-Key` when `SERVICE_API_KEY` is set |
+| 413 | Upload exceeds `MAX_UPLOAD_BYTES` |
 | 415 | Unsupported audio format |
 | 422 | Invalid `target_language` |
+| 502 | Translation output failed quality validation |
 | 503 | ElevenLabs timeout or configuration/auth problem |
 | 500 | Unexpected failure during translation |
 
@@ -116,6 +120,8 @@ Translation is not instant. The service clones a voice profile from your upload,
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ELEVENV3_API_KEY` | Yes | ElevenLabs API key used for voice clone, dubbing, and speech-to-speech |
+| `SERVICE_API_KEY` | No | When set, clients must send matching `X-API-Key` on `/translate` |
+| `MAX_UPLOAD_BYTES` | No | Maximum upload size in bytes (default: 26214400, 25 MiB) |
 
 If the key is missing or invalid, `/translate` returns **503** with an authentication-related message.
 
@@ -135,10 +141,17 @@ For a full end-to-end test against the real ElevenLabs API (slow, uses quota):
 ELEVENV3_API_KEY=your_key make test-integration
 ```
 
-Unit tests that do not call ElevenLabs:
+Unit tests and typecheck (no ElevenLabs calls):
+
+```bash
+make check
+```
+
+Or separately:
 
 ```bash
 make test
+make typecheck
 ```
 
 ## Troubleshooting

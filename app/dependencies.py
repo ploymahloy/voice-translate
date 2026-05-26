@@ -1,5 +1,5 @@
-SUPPORTED_LANGUAGES: frozenset[str] = frozenset({"en", "es", "fr", "de"})
+"""Re-exports configuration constants for backward compatibility."""
 
-ALLOWED_AUDIO_EXTENSIONS: frozenset[str] = frozenset(
-    {".wav", ".mp3", ".m4a", ".ogg", ".webm"}
-)
+from app.config import ALLOWED_AUDIO_EXTENSIONS, SUPPORTED_LANGUAGES
+
+__all__ = ["ALLOWED_AUDIO_EXTENSIONS", "SUPPORTED_LANGUAGES"]

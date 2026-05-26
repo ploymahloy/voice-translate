@@ -1,5 +1,6 @@
 {
   "venvPath": ".",
-  "venv": ".pipx-pytest",
+  "venv": ".venv",
+  "pythonVersion": "3.11",
   "extraPaths": ["."]
 }

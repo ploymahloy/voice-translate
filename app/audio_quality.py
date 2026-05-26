@@ -1,7 +1,10 @@
 import io
 import wave
 from typing import Literal
+
 from mutagen._file import File as MutagenFile
+
+from app.exceptions import OutputQualityError
 
 OutputFormat = Literal["mp3", "wav"]
 
@@ -13,7 +16,6 @@ def is_valid_mp3(data: bytes) -> bool:
     if len(data) >= 2 and data[0] == 0xFF and (data[1] & 0xE0) == 0xE0:
         return True
     return False
-
 
 def is_valid_wav(data: bytes) -> bool:
     return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WAVE"
@@ -55,6 +57,7 @@ def duration_within_tolerance(input_duration: float, output_duration: float) -> 
     return abs(output_duration - input_duration) <= tolerance
 
 def generate_silent_wav(source_audio: bytes) -> bytes:
+    """Build silent WAV matching source layout (used in unit tests)."""
     with wave.open(io.BytesIO(source_audio), "rb") as source_wav:
         nchannels = source_wav.getnchannels()
         sampwidth = source_wav.getsampwidth()
@@ -72,17 +75,31 @@ def generate_silent_wav(source_audio: bytes) -> bytes:
 def media_type_for_format(fmt: OutputFormat) -> str:
     return "audio/wav" if fmt == "wav" else "audio/mp3"
 
+def _source_duration_seconds(source_audio: bytes) -> float | None:
+    try:
+        return audio_duration_seconds(source_audio)
+    except ValueError:
+        return None
+
 def ensure_output_quality(source_audio: bytes, output: bytes) -> bytes:
-    if not is_valid_wav(source_audio):
+    if not is_valid_output_audio(output):
+        raise OutputQualityError("Translation output is not valid audio")
+
+    source_duration = _source_duration_seconds(source_audio)
+    if source_duration is None:
         return output
 
-    input_duration = wav_duration_seconds(source_audio)
-    if is_valid_output_audio(output):
-        try:
-            output_duration = audio_duration_seconds(output)
-            if duration_within_tolerance(input_duration, output_duration):
-                return output
-        except ValueError:
-            pass
+    try:
+        output_duration = audio_duration_seconds(output)
+    except ValueError as exc:
+        raise OutputQualityError(
+            "Unable to determine translation output duration"
+        ) from exc
 
-    return generate_silent_wav(source_audio)
+    if not duration_within_tolerance(source_duration, output_duration):
+        raise OutputQualityError(
+            f"Output duration {output_duration:.2f}s differs from input "
+            f"{source_duration:.2f}s by more than allowed tolerance"
+        )
+
+    return output

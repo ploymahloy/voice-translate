@@ -9,7 +9,6 @@ from app.ai import (
 )
 from app.audio_quality import ensure_output_quality
 
-
 def run_translation(
     *,
     source_audio: bytes,

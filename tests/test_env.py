@@ -2,7 +2,6 @@ import os
 
 from app.env import load_env_file
 
-
 def test_load_env_file_sets_missing_variables(tmp_path, monkeypatch):
     env_file = tmp_path / ".env"
     env_file.write_text(
@@ -21,7 +20,6 @@ def test_load_env_file_sets_missing_variables(tmp_path, monkeypatch):
     assert os.environ["FIRST"] == "one"
     assert os.environ["SECOND"] == "two"
     assert os.environ["THIRD"] == "three"
-
 
 def test_load_env_file_does_not_override_existing_variables(tmp_path, monkeypatch):
     env_file = tmp_path / ".env"

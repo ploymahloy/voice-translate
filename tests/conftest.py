@@ -23,7 +23,6 @@ VALID_TARGET_LANGUAGE = "es"
 SUPPORTED_LANGUAGES = ("en", "es", "fr", "de")
 
 FAKE_VOICE_PROFILE = {"id": "test-profile"}
-FAKE_OUTPUT_AUDIO = b"fake-output-audio-bytes"
 VALID_SOURCE_BYTES = b"\x00\x01\x02"
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
@@ -38,6 +37,14 @@ ELEVEN_API_UPSTREAM_FAILURES = (
     RuntimeError("Eleven API key invalid or expired"),
     httpx.TimeoutException("Eleven API request timed out"),
 )
+
+def valid_output_wav_bytes() -> bytes:
+    """Valid WAV output matching one_second_wav duration for quality checks."""
+    return one_second_wav_bytes()
+
+@pytest.fixture(autouse=True)
+def _clear_service_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("SERVICE_API_KEY", raising=False)
 
 @contextmanager
 def track_mkstemp() -> Generator[list[str], None, None]:
@@ -54,7 +61,6 @@ def track_mkstemp() -> Generator[list[str], None, None]:
         side_effect=recording_mkstemp,
     ):
         yield created
-
 
 @pytest.fixture
 def client() -> TestClient:
@@ -73,12 +79,14 @@ def post_translate(
     target_language: str | None = None,
     files: Mapping[str, tuple] | None = None,
     data: Mapping[str, str] | None = None,
+    headers: Mapping[str, str] | None = None,
 ):
     form_data = dict(data or {})
     if target_language is not None:
         form_data["target_language"] = target_language
-    return client.post(TRANSLATE_URL, data=form_data, files=files)
-
+    return client.post(
+        TRANSLATE_URL, data=form_data, files=files, headers=dict(headers or {})
+    )
 
 def audio_file(filename: str, content: bytes, content_type: str) -> dict:
     return {"source_audio": (filename, io.BytesIO(content), content_type)}
@@ -117,11 +125,13 @@ def post_translate_one_second_wav(
     client: TestClient,
     *,
     target_language: str = VALID_TARGET_LANGUAGE,
+    headers: Mapping[str, str] | None = None,
 ):
     return post_translate(
         client,
         target_language=target_language,
         files=one_second_wav_upload(),
+        headers=headers,
     )
 
 @contextmanager

@@ -1,15 +1,19 @@
-.PHONY: deps run test test-integration
+.PHONY: deps run test test-integration typecheck check
 
 deps:
-	pipx install pytest
-	pipx inject pytest fastapi httpx python-multipart mutagen 'uvicorn[standard]'
-	ln -sfn "$(HOME)/.local/pipx/venvs/pytest" .pipx-pytest
+	python3 -m venv .venv
+	.venv/bin/pip install -r requirements.txt -r requirements-dev.txt
 
 run:
-	.pipx-pytest/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 test:
-	PYTHONDONTWRITEBYTECODE=1 pytest -v -m "not integration"
+	PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -v -m "not integration"
 
 test-integration:
-	PYTHONDONTWRITEBYTECODE=1 pytest -v -m integration
+	PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -v -m integration
+
+typecheck:
+	.venv/bin/pyright
+
+check: test typecheck
