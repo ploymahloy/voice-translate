@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 REQUEST_ID_HEADER = "X-Request-ID"
 
+
 class RequestContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get(REQUEST_ID_HEADER) or str(uuid.uuid4())
@@ -38,3 +39,4 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         )
         response.headers[REQUEST_ID_HEADER] = request_id
         return response
+

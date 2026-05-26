@@ -22,8 +22,11 @@ _ELEVEN_API_TIMEOUT = "Eleven API request timed out"
 
 AuthContext = Literal["voice_clone", "eleven_api"]
 
+
 class ElevenLabsClient:
-    def __init__(self, base_url: str = _BASE_URL, timeout: float = _REQUEST_TIMEOUT) -> None:
+    def __init__(
+        self, base_url: str = _BASE_URL, timeout: float = _REQUEST_TIMEOUT
+    ) -> None:
         self._base_url = base_url
         self._timeout = timeout
 
@@ -47,12 +50,14 @@ class ElevenLabsClient:
             else _VOICE_CLONE_AUTH_ERROR
         )
         timeout_message = (
-            _ELEVEN_API_TIMEOUT if auth_context == "eleven_api" else _VOICE_CLONE_TIMEOUT
+            _ELEVEN_API_TIMEOUT
+            if auth_context == "eleven_api"
+            else _VOICE_CLONE_TIMEOUT
         )
         try:
-            with httpx.Client(
-                base_url=self._base_url, timeout=self._timeout
-            ) as client:
+            with httpx.Client(base_url=self._base_url, timeout=self._timeout) as (
+                client
+            ):
                 response = client.request(
                     method, url, headers=self._headers(), **kwargs
                 )
@@ -74,7 +79,9 @@ class ElevenLabsClient:
             )
             raise RuntimeError(message)
 
+
 _client = ElevenLabsClient()
+
 
 def extract_voice_profile(audio_path: str) -> dict:
     _client.require_api_key(auth_context="voice_clone")
@@ -94,6 +101,7 @@ def extract_voice_profile(audio_path: str) -> dict:
         raise RuntimeError("Voice Clone response missing voice_id")
 
     return {"id": voice_id}
+
 
 def _dub_audio(audio_path: str, target_language: str) -> bytes:
     _client.require_api_key(auth_context="eleven_api")
@@ -132,8 +140,10 @@ def _dub_audio(audio_path: str, target_language: str) -> bytes:
     )
     return audio_response.content
 
+
 _STS_MODEL_ID = "eleven_multilingual_sts_v2"
 _STS_OUTPUT_FORMAT = "mp3_44100_128"
+
 
 def _apply_cloned_voice(voice_id: str, dubbed_audio: bytes) -> bytes:
     _client.require_api_key(auth_context="eleven_api")
@@ -149,7 +159,9 @@ def _apply_cloned_voice(voice_id: str, dubbed_audio: bytes) -> bytes:
                 auth_context="eleven_api",
                 params={"output_format": _STS_OUTPUT_FORMAT},
                 data={"model_id": _STS_MODEL_ID},
-                files={"audio": ("dubbed.mp3", audio_file, "audio/mpeg")},
+                files={
+                    "audio": ("dubbed.mp3", audio_file, "audio/mpeg")
+                },
             )
     finally:
         try:
@@ -159,13 +171,16 @@ def _apply_cloned_voice(voice_id: str, dubbed_audio: bytes) -> bytes:
 
     return response.content
 
+
 def delete_voice_profile(profile: dict) -> None:
     voice_id = profile.get("id")
     if not voice_id or not _client.api_key():
         return
     try:
         _client.request(
-            "DELETE", f"/v1/voices/{voice_id}", auth_context="voice_clone"
+            "DELETE",
+            f"/v1/voices/{voice_id}",
+            auth_context="voice_clone",
         )
     except (httpx.HTTPError, RuntimeError) as exc:
         logger.warning(
@@ -174,12 +189,12 @@ def delete_voice_profile(profile: dict) -> None:
             exc,
         )
 
-def translate_and_synthesize(
-    profile: dict, target_language: str, audio_path: str
-) -> bytes:
+
+def translate_and_synthesize(profile: dict, target_language: str, audio_path: str) -> bytes:
     voice_id = profile.get("id")
     if not voice_id:
         raise RuntimeError("Voice profile missing voice id")
 
     dubbed = _dub_audio(audio_path, target_language)
     return _apply_cloned_voice(voice_id, dubbed)
+

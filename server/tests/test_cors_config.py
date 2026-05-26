@@ -1,4 +1,4 @@
-from app.config import cors_allow_origins
+from server.config import cors_allow_origins
 
 def test_cors_allow_origins_default_when_unset(monkeypatch):
     monkeypatch.delenv("CORS_ORIGINS", raising=False)

@@ -39,7 +39,7 @@ The server loads this file on startup. Values already set in your shell environm
 ### 3. Start the server
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+PYTHONPATH=. uvicorn server.main:app --host 0.0.0.0 --port 8000
 ```
 
 Or:

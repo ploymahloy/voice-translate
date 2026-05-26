@@ -2,12 +2,13 @@ import os
 import tempfile
 from pathlib import Path
 
-from app.ai import (
+from server.ai import (
     delete_voice_profile,
     extract_voice_profile,
     translate_and_synthesize,
 )
-from app.audio_quality import ensure_output_quality
+from server.audio_quality import ensure_output_quality
+
 
 def run_translation(
     *,
@@ -32,3 +33,4 @@ def run_translation(
                 os.unlink(path)
             except OSError:
                 pass
+

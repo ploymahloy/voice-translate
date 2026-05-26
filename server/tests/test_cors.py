@@ -1,4 +1,4 @@
-from app.main import create_app
+from server.main import create_app
 from fastapi.testclient import TestClient
 
 def _client(monkeypatch, origins: str) -> TestClient:

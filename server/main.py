@@ -8,19 +8,19 @@ from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadF
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from app.config import (
+from server.config import (
     ALLOWED_AUDIO_EXTENSIONS,
     SUPPORTED_LANGUAGES,
     cors_allow_origins,
     max_upload_bytes,
     service_api_key,
 )
-from app.env import load_env_file
-from app.exceptions import OutputQualityError
-from app.audio_quality import detect_output_format, media_type_for_format
-from app.logging_config import configure_logging
-from app.middleware import REQUEST_ID_HEADER, RequestContextMiddleware
-from app.services.translate_service import run_translation
+from server.env import load_env_file
+from server.exceptions import OutputQualityError
+from server.audio_quality import detect_output_format, media_type_for_format
+from server.logging_config import configure_logging
+from server.middleware import REQUEST_ID_HEADER, RequestContextMiddleware
+from server.services.translate_service import run_translation
 
 load_env_file()
 configure_logging()
@@ -149,3 +149,4 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+

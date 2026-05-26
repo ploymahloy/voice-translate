@@ -5,16 +5,16 @@ deps:
 	.venv/bin/pip install -r requirements.txt -r requirements-dev.txt
 
 run:
-	.venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	PYTHONPATH=.. .venv/bin/uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
 
 test:
-	PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -v -m "not integration"
+	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.. .venv/bin/pytest -v -m "not integration"
 
 test-integration:
-	PYTHONDONTWRITEBYTECODE=1 .venv/bin/pytest -v -m integration
+	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.. .venv/bin/pytest -v -m integration
 
 typecheck:
-	.venv/bin/pyright
+	PYTHONPATH=.. .venv/bin/pyright
 
 client-install:
 	cd client && npm ci

@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
-from app.ai import translate_and_synthesize
+from server.ai import translate_and_synthesize
 
 FAKE_PROFILE = {"id": "cloned-voice-id"}
 FAKE_DUBBED = b"fake-dubbed-audio"
 FAKE_CLONED = b"fake-cloned-output"
 
-@patch("app.ai._apply_cloned_voice", return_value=FAKE_CLONED)
-@patch("app.ai._dub_audio", return_value=FAKE_DUBBED)
+@patch("server.ai._apply_cloned_voice", return_value=FAKE_CLONED)
+@patch("server.ai._dub_audio", return_value=FAKE_DUBBED)
 def test_translate_and_synthesize_dubs_then_applies_clone(
     mock_dub, mock_apply
 ):
@@ -17,7 +17,7 @@ def test_translate_and_synthesize_dubs_then_applies_clone(
     mock_apply.assert_called_once_with("cloned-voice-id", FAKE_DUBBED)
     assert result == FAKE_CLONED
 
-@patch("app.ai._dub_audio")
+@patch("server.ai._dub_audio")
 def test_translate_and_synthesize_requires_voice_id(mock_dub):
     try:
         translate_and_synthesize({}, "es", "/tmp/input.wav")

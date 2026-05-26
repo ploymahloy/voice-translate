@@ -8,10 +8,10 @@ from tests.conftest import (
     valid_output_wav_bytes,
     track_mkstemp,
 )
-from app.services.translate_service import run_translation
+from server.services.translate_service import run_translation
 
-@patch("app.services.translate_service.translate_and_synthesize")
-@patch("app.services.translate_service.extract_voice_profile")
+@patch("server.services.translate_service.translate_and_synthesize")
+@patch("server.services.translate_service.extract_voice_profile")
 def test_temp_files_removed_on_success(mock_extract, mock_translate):
     mock_extract.return_value = FAKE_VOICE_PROFILE
     mock_translate.return_value = valid_output_wav_bytes()
@@ -27,8 +27,8 @@ def test_temp_files_removed_on_success(mock_extract, mock_translate):
     for path in created:
         assert not Path(path).exists()
 
-@patch("app.services.translate_service.translate_and_synthesize")
-@patch("app.services.translate_service.extract_voice_profile")
+@patch("server.services.translate_service.translate_and_synthesize")
+@patch("server.services.translate_service.extract_voice_profile")
 def test_temp_files_removed_on_failure(mock_extract, mock_translate):
     mock_extract.return_value = FAKE_VOICE_PROFILE
     mock_translate.side_effect = RuntimeError("AI failed")

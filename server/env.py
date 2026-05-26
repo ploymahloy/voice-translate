@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
 
+# `__file__` is `.../voice-translate/server/env.py`; repo root is two levels up.
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _DEFAULT_ENV_FILE = _PROJECT_ROOT / ".env"
+
 
 def load_env_file(path: Path | None = None) -> None:
     env_path = path if path is not None else _DEFAULT_ENV_FILE
@@ -27,3 +29,4 @@ def load_env_file(path: Path | None = None) -> None:
             value = value[1:-1]
         if key not in os.environ:
             os.environ[key] = value
+

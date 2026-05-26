@@ -13,7 +13,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import create_app
+from server.main import create_app
 from tests.audio_helpers import assert_output_validity
 
 SUCCESS_AUDIO_MEDIA_TYPES = frozenset({"audio/mp3", "audio/wav"})
@@ -62,7 +62,7 @@ def track_mkstemp() -> Generator[list[str], None, None]:
         return fd, path
 
     with patch(
-        "app.services.translate_service.tempfile.mkstemp",
+        "server.services.translate_service.tempfile.mkstemp",
         side_effect=recording_mkstemp,
     ):
         yield created
@@ -145,7 +145,7 @@ def patch_extract_voice_profile(
     if return_value is not None:
         patch_kwargs["return_value"] = return_value
     with patch(
-        "app.services.translate_service.extract_voice_profile",
+        "server.services.translate_service.extract_voice_profile",
         **patch_kwargs,
     ):
         yield
@@ -160,7 +160,7 @@ def patch_translate_and_synthesize(
     if return_value is not None:
         patch_kwargs["return_value"] = return_value
     with patch(
-        "app.services.translate_service.translate_and_synthesize",
+        "server.services.translate_service.translate_and_synthesize",
         **patch_kwargs,
     ):
         yield

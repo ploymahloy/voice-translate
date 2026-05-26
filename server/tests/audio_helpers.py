@@ -1,4 +1,4 @@
-from app.audio_quality import (
+from server.audio_quality import (
     OutputFormat,
     audio_duration_seconds,
     detect_output_format,

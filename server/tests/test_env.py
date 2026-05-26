@@ -1,6 +1,12 @@
 import os
+from pathlib import Path
 
-from app.env import load_env_file
+from server.env import _DEFAULT_ENV_FILE, load_env_file
+
+
+def test_default_env_file_is_repo_root_dotenv():
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    assert _DEFAULT_ENV_FILE == repo_root / ".env"
 
 def test_load_env_file_sets_missing_variables(tmp_path, monkeypatch):
     env_file = tmp_path / ".env"
