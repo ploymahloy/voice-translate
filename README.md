@@ -48,21 +48,21 @@ Or:
 make run
 ```
 
-The API is available at `http://localhost:8000`. Open `http://localhost:8000/docs` in a browser for an interactive form to try translations without writing code.
+The API is available at `http://34.201.102.73`. Open `http://34.201.102.73/docs` in a browser for an interactive form to try translations without writing code.
 
 ### 4. Translate audio
 
 Send a **POST** request to `/translate` with:
 
-| Field | Description |
-|-------|-------------|
-| `source_audio` | Audio file (multipart upload) |
+| Field             | Description                    |
+| ----------------- | ------------------------------ |
+| `source_audio`    | Audio file (multipart upload)  |
 | `target_language` | One of: `en`, `es`, `fr`, `de` |
 
 **Example with curl:**
 
 ```bash
-curl -X POST "http://localhost:8000/translate" \
+curl -X POST "http://34.201.102.73/translate" \
   -F "target_language=es" \
   -F "source_audio=@/path/to/your/recording.wav" \
   --output translated.mp3
@@ -82,26 +82,26 @@ A successful response is raw audio (typically MP3). Save it with `--output` as s
 
 ## API overview
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/` | GET | Service info and links |
-| `/health` | GET | Liveness check (`{"status":"ok"}`) |
-| `/ready` | GET | Readiness check (API key configured) |
-| `/translate` | POST | Upload audio and receive translation |
-| `/docs` | GET | Interactive API documentation (Swagger UI) |
+| Endpoint     | Method | Purpose                                    |
+| ------------ | ------ | ------------------------------------------ |
+| `/`          | GET    | Service info and links                     |
+| `/health`    | GET    | Liveness check (`{"status":"ok"}`)         |
+| `/ready`     | GET    | Readiness check (API key configured)       |
+| `/translate` | POST   | Upload audio and receive translation       |
+| `/docs`      | GET    | Interactive API documentation (Swagger UI) |
 
 ### Common errors
 
-| Status | Meaning |
-|--------|---------|
-| 400 | Missing file, empty file, or invalid upload |
-| 401 | Missing or invalid `X-API-Key` when `SERVICE_API_KEY` is set |
-| 413 | Upload exceeds `MAX_UPLOAD_BYTES` |
-| 415 | Unsupported audio format |
-| 422 | Invalid `target_language` |
-| 502 | Translation output failed quality validation |
-| 503 | ElevenLabs timeout or configuration/auth problem |
-| 500 | Unexpected failure during translation |
+| Status | Meaning                                                      |
+| ------ | ------------------------------------------------------------ |
+| 400    | Missing file, empty file, or invalid upload                  |
+| 401    | Missing or invalid `X-API-Key` when `SERVICE_API_KEY` is set |
+| 413    | Upload exceeds `MAX_UPLOAD_BYTES`                            |
+| 415    | Unsupported audio format                                     |
+| 422    | Invalid `target_language`                                    |
+| 502    | Translation output failed quality validation                 |
+| 503    | ElevenLabs timeout or configuration/auth problem             |
+| 500    | Unexpected failure during translation                        |
 
 Error bodies include a `detail` message you can show to users or logs.
 
@@ -117,12 +117,12 @@ Translation is not instant. The service clones a voice profile from your upload,
 
 ## Configuration reference
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ELEVENV3_API_KEY` | Yes | ElevenLabs API key used for voice clone, dubbing, and speech-to-speech |
-| `SERVICE_API_KEY` | No | When set, clients must send matching `X-API-Key` on `/translate` |
-| `MAX_UPLOAD_BYTES` | No | Maximum upload size in bytes (default: 26214400, 25 MiB) |
-| `CORS_ORIGINS` | No | Comma-separated browser origins allowed for the web client (default: `http://localhost:4321`) |
+| Variable           | Required | Description                                                                                   |
+| ------------------ | -------- | --------------------------------------------------------------------------------------------- |
+| `ELEVENV3_API_KEY` | Yes      | ElevenLabs API key used for voice clone, dubbing, and speech-to-speech                        |
+| `SERVICE_API_KEY`  | No       | When set, clients must send matching `X-API-Key` on `/translate`                              |
+| `MAX_UPLOAD_BYTES` | No       | Maximum upload size in bytes (default: 26214400, 25 MiB)                                      |
+| `CORS_ORIGINS`     | No       | Comma-separated browser origins allowed for the web client (default: `http://localhost:4321`) |
 
 If the key is missing or invalid, `/translate` returns **503** with an authentication-related message.
 
@@ -135,7 +135,7 @@ An Astro + TypeScript UI lives in [`client/`](client/). It uploads audio and cal
 Use two terminals:
 
 ```bash
-make run          # API on http://localhost:8000
+make run          # API on http://34.201.102.73
 make client-dev   # UI on http://localhost:4321 (proxies /api → API)
 ```
 
@@ -150,8 +150,9 @@ Copy [`client/.env.example`](client/.env.example) to `client/.env` if you need a
 ### Production deployment
 
 - **Client:** build static assets with `make client-build` and deploy `client/dist/` to your static host.
-- **API:** set `CORS_ORIGINS` to your deployed app origin(s), e.g. `https://your-app.vercel.app`.
-- **Client env:** set `PUBLIC_API_BASE_URL` to your API origin (no trailing slash), e.g. `https://api.your-domain.com`.
+- **Vercel:** deploy from `client/` (or set the project root to `client`). [`client/vercel.json`](client/vercel.json) rewrites `/api/*` to the EC2 API (same behavior as the Vite dev proxy in [`client/astro.config.mjs`](client/astro.config.mjs)). Leave `PUBLIC_API_BASE_URL` unset so the browser calls `/api/translate` on your app origin.
+- **API:** set `CORS_ORIGINS` to your deployed app origin(s) only if the browser calls the API host directly (e.g. when `PUBLIC_API_BASE_URL` points at EC2). Same-origin `/api` proxying via Vercel does not require CORS changes.
+- **Client env (optional):** set `PUBLIC_API_BASE_URL` to a dedicated API origin (no trailing slash), e.g. `https://api.your-domain.com`, instead of using `/api` rewrites.
 
 Do not set `PUBLIC_DEV_API_KEY` or `SERVICE_API_KEY` for public browser traffic—the key would be visible to users. Leave `SERVICE_API_KEY` unset in production unless you add server-side auth later.
 
@@ -166,7 +167,7 @@ make client-test
 Check that the server is up:
 
 ```bash
-curl http://localhost:8000/health
+curl http://34.201.102.73/health
 ```
 
 Expect: `{"status":"ok"}`.
