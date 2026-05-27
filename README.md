@@ -136,7 +136,7 @@ Use two terminals:
 
 ```bash
 make run          # API on http://34.201.102.73
-make client-dev   # UI on http://localhost:4321 (proxies /api → API)
+make client-dev   # UI on http://localhost:4321 (proxies /translate → API)
 ```
 
 Install client dependencies once:
@@ -150,8 +150,8 @@ Copy [`client/.env.example`](client/.env.example) to `client/.env` if you need a
 ### Production deployment
 
 - **Client:** build static assets with `make client-build` and deploy `client/dist/` to your static host.
-- **Vercel:** deploy from `client/` (or set the project root to `client`). [`client/vercel.json`](client/vercel.json) rewrites `/api/*` to the EC2 API (same behavior as the Vite dev proxy in [`client/astro.config.mjs`](client/astro.config.mjs)). Leave `PUBLIC_API_BASE_URL` unset so the browser calls `/api/translate` on your app origin.
-- **API:** set `CORS_ORIGINS` to your deployed app origin(s) only if the browser calls the API host directly (e.g. when `PUBLIC_API_BASE_URL` points at EC2). Same-origin `/api` proxying via Vercel does not require CORS changes.
+- **Vercel:** deploy from `client/` (or set the project root to `client`). [`client/vercel.json`](client/vercel.json) rewrites `/api/*` to the EC2 API (for API routes that use that prefix). Leave `PUBLIC_API_BASE_URL` unset so the browser calls `/translate` on your app origin in this client.
+- **API:** set `CORS_ORIGINS` to your deployed app origin(s) only if the browser calls the API host directly (e.g. when `PUBLIC_API_BASE_URL` points at EC2). Same-origin proxying via Vercel does not require CORS changes.
 - **Client env (optional):** set `PUBLIC_API_BASE_URL` to a dedicated API origin (no trailing slash), e.g. `https://api.your-domain.com`, instead of using `/api` rewrites.
 
 Do not set `PUBLIC_DEV_API_KEY` or `SERVICE_API_KEY` for public browser traffic—the key would be visible to users. Leave `SERVICE_API_KEY` unset in production unless you add server-side auth later.

@@ -6,10 +6,9 @@ export default defineConfig({
   vite: {
     server: {
       proxy: {
-        '/api': {
+        '/translate': {
           target: 'http://34.201.102.73',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },

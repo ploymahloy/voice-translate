@@ -22,7 +22,7 @@ export function resolveApiBaseUrl(env: ApiEnv = import.meta.env): string {
 export function buildTranslateUrl(base: string): string {
   const normalized = base.replace(/\/$/, '');
   if (!normalized) {
-    return '/api/translate';
+    return '/translate';
   }
   return `${normalized}/translate`;
 }

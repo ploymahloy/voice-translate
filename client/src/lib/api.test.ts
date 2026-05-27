@@ -22,7 +22,7 @@ describe('resolveApiBaseUrl', () => {
 
 describe('buildTranslateUrl', () => {
   it('uses dev proxy path when base is empty', () => {
-    expect(buildTranslateUrl('')).toBe('/api/translate');
+    expect(buildTranslateUrl('')).toBe('/translate');
   });
 
   it('joins base and translate path', () => {
@@ -52,7 +52,7 @@ describe('parseApiError', () => {
 
 describe('formatFetchError', () => {
   it('suggests starting the API on network failure', () => {
-    expect(formatFetchError(new TypeError('Failed to fetch'), '/api/translate')).toContain(
+    expect(formatFetchError(new TypeError('Failed to fetch'), '/translate')).toContain(
       'make run',
     );
   });
@@ -78,7 +78,7 @@ describe('translateAudio', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe('/api/translate');
+    expect(url).toBe('/translate');
     expect(init.method).toBe('POST');
     expect(init.body).toBeInstanceOf(FormData);
     const form = init.body as FormData;
