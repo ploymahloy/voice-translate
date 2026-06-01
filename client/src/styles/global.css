@@ -86,7 +86,6 @@ main {
 }
 
 .field .hint {
-	display: block;
 	font-size: 0.875rem;
 	color: var(--muted);
 	font-weight: 400;
