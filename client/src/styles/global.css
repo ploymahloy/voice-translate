@@ -1,161 +1,161 @@
 :root {
-  color-scheme: light dark;
-  --bg: #0f1419;
-  --surface: #1a2332;
-  --border: #2d3a4f;
-  --text: #e8edf4;
-  --muted: #9aa8bc;
-  --accent: #3d8bfd;
-  --accent-hover: #5a9dff;
-  --error: #f87171;
-  --success: #4ade80;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
-  line-height: 1.5;
+	color-scheme: light dark;
+	--bg: #0f1419;
+	--surface: #1a2332;
+	--border: #2d3a4f;
+	--text: #e8edf4;
+	--muted: #9aa8bc;
+	--accent: #3d8bfd;
+	--accent-hover: #5a9dff;
+	--error: #f87171;
+	--success: #4ade80;
+	font-family:
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		sans-serif;
+	line-height: 1.5;
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f4f6f9;
-    --surface: #ffffff;
-    --border: #d0d7e2;
-    --text: #1a2332;
-    --muted: #5a6578;
-    --accent: #2563eb;
-    --accent-hover: #1d4ed8;
-    --error: #dc2626;
-    --success: #16a34a;
-  }
+	:root {
+		--bg: #f4f6f9;
+		--surface: #ffffff;
+		--border: #d0d7e2;
+		--text: #1a2332;
+		--muted: #5a6578;
+		--accent: #2563eb;
+		--accent-hover: #1d4ed8;
+		--error: #dc2626;
+		--success: #16a34a;
+	}
 }
 
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
+	margin: 0;
+	min-height: 100vh;
+	background: var(--bg);
+	color: var(--text);
 }
 
 .site-header {
-  padding: 2rem 1.5rem 1rem;
-  max-width: 40rem;
-  margin: 0 auto;
+	padding: 2rem 1.5rem 1rem;
+	max-width: 40rem;
+	margin: 0 auto;
 }
 
 .site-header h1 {
-  margin: 0 0 0.25rem;
-  font-size: 1.75rem;
-  font-weight: 700;
+	margin: 0 0 0.25rem;
+	font-size: 1.75rem;
+	font-weight: 700;
 }
 
 .tagline {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1rem;
+	margin: 0;
+	color: var(--muted);
+	font-size: 1rem;
 }
 
 main {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 0 1.5rem 3rem;
+	max-width: 40rem;
+	margin: 0 auto;
+	padding: 0 1.5rem;
 }
 
 .translate-form {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
 }
 
 .field label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.35rem;
 }
 
 .field .hint {
-  display: block;
-  font-size: 0.875rem;
-  color: var(--muted);
-  font-weight: 400;
-  margin-top: 0.2rem;
+	display: block;
+	font-size: 0.875rem;
+	color: var(--muted);
+	font-weight: 400;
+	margin-top: 0.2rem;
 }
 
 .field input[type='file'],
 .field select {
-  width: 100%;
-  padding: 0.5rem 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 1rem;
+	width: 100%;
+	padding: 0.5rem 0.65rem;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--bg);
+	color: var(--text);
+	font-size: 1rem;
 }
 
 button[type='submit'] {
-  padding: 0.65rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  cursor: pointer;
+	padding: 0.65rem 1.25rem;
+	font-size: 1rem;
+	font-weight: 600;
+	border: none;
+	border-radius: 8px;
+	background: var(--accent);
+	color: #fff;
+	cursor: pointer;
 }
 
 button[type='submit']:hover:not(:disabled) {
-  background: var(--accent-hover);
+	background: var(--accent-hover);
 }
 
 button[type='submit']:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+	opacity: 0.55;
+	cursor: not-allowed;
 }
 
 .status {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--muted);
+	margin: 0;
+	font-size: 0.95rem;
+	color: var(--muted);
 }
 
 .status.error {
-  color: var(--error);
+	color: var(--error);
 }
 
 .result {
-  border-top: 1px solid var(--border);
-  padding-top: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+	border-top: 1px solid var(--border);
+	padding-top: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 }
 
 .result h2 {
-  margin: 0;
-  font-size: 1.1rem;
+	margin: 0;
+	font-size: 1.1rem;
 }
 
 .result audio {
-  width: 100%;
+	width: 100%;
 }
 
 .download-link {
-  color: var(--accent);
-  font-weight: 600;
+	color: var(--accent);
+	font-weight: 600;
 }
 
 .download-link:hover {
-  color: var(--accent-hover);
+	color: var(--accent-hover);
 }
