@@ -54,16 +54,18 @@ The API is available at `http://34.201.102.73`. Open `http://34.201.102.73/docs`
 
 Send a **POST** request to `/translate` with:
 
-| Field             | Description                    |
-| ----------------- | ------------------------------ |
-| `source_audio`    | Audio file (multipart upload)  |
-| `target_language` | One of: `en`, `es`, `fr`, `de` |
+
+| Field             | Description                                                |
+| ----------------- | ---------------------------------------------------------- |
+| `source_audio`    | Audio file (multipart upload)                              |
+| `target_language` | ISO 639-3 code (see [Target languages](#target-languages)) |
+
 
 **Example with curl:**
 
 ```bash
 curl -X POST "http://34.201.102.73/translate" \
-  -F "target_language=es" \
+  -F "target_language=spa" \
   -F "source_audio=@/path/to/your/recording.wav" \
   --output translated.mp3
 ```
@@ -72,15 +74,57 @@ A successful response is raw audio (typically MP3). Save it with `--output` as s
 
 ## Supported inputs and outputs
 
-**Target languages:** English (`en`), Spanish (`es`), French (`fr`), German (`de`).
+### Target languages
 
-**Input formats:** `.wav`, `.mp3`, `.m4a`, `.ogg`, `.webm`
+`target_language` must be an **ISO 639-3** code. The canonical list lives in [`shared/languages.json`](shared/languages.json); the web UI shows the same languages sorted alphabetically by code.
+
+**Accepted languages (74):**
+
+| Code | Language | Code | Language | Code | Language |
+| ---- | -------- | ---- | -------- | ---- | -------- |
+| `afr` | Afrikaans | `ara` | Arabic | `asm` | Assamese |
+| `aze` | Azerbaijani | `bel` | Belarusian | `ben` | Bengali |
+| `bos` | Bosnian | `bul` | Bulgarian | `cat` | Catalan |
+| `ceb` | Cebuano | `ces` | Czech | `cym` | Welsh |
+| `dan` | Danish | `deu` | German | `ell` | Greek |
+| `eng` | English | `est` | Estonian | `fil` | Filipino |
+| `fin` | Finnish | `fra` | French | `gle` | Irish |
+| `glg` | Galician | `guj` | Gujarati | `hau` | Hausa |
+| `heb` | Hebrew | `hin` | Hindi | `hrv` | Croatian |
+| `hye` | Armenian | `ind` | Indonesian | `isl` | Icelandic |
+| `ita` | Italian | `jav` | Javanese | `kan` | Kannada |
+| `kat` | Georgian | `kaz` | Kazakh | `kir` | Kyrgyz |
+| `kor` | Korean | `lav` | Latvian | `lin` | Lingala |
+| `lit` | Lithuanian | `ltz` | Luxembourgish | `mal` | Malayalam |
+| `mar` | Marathi | `msa` | Malay | `nep` | Nepali |
+| `nld` | Dutch | `nor` | Norwegian | `nya` | Chichewa |
+| `ori` | Odia | `pan` | Punjabi | `pol` | Polish |
+| `por` | Portuguese | `pus` | Pashto | `ron` | Romanian |
+| `rus` | Russian | `slk` | Slovak | `slv` | Slovenian |
+| `som` | Somali | `spa` | Spanish | `srp` | Serbian |
+| `swe` | Swedish | `swa` | Swahili | `tam` | Tamil |
+| `tel` | Telugu | `tgl` | Tagalog | `tha` | Thai |
+| `tur` | Turkish | `ukr` | Ukrainian | `urd` | Urdu |
+| `vie` | Vietnamese | `yor` | Yoruba | `yue` | Cantonese |
+| `zho` | Chinese (Mandarin) | `zul` | Zulu | | |
+
+**Breaking change:** older 2-letter codes are no longer accepted. Migrate as follows:
+
+| Old (ISO 639-1) | New (ISO 639-3) |
+| --------------- | --------------- |
+| `en`            | `eng`           |
+| `es`            | `spa`           |
+| `fr`            | `fra`           |
+| `de`            | `deu`           |
+
+**Input formats:** `.wav`, `.mp3`
 
 **Response:** Translated audio as MP3 or WAV, depending on what the pipeline returns. The `Content-Type` header reflects the format.
 
 **Source language:** Detected automatically; you only specify the target language.
 
 ## API overview
+
 
 | Endpoint     | Method | Purpose                                    |
 | ------------ | ------ | ------------------------------------------ |
@@ -90,7 +134,9 @@ A successful response is raw audio (typically MP3). Save it with `--output` as s
 | `/translate` | POST   | Upload audio and receive translation       |
 | `/docs`      | GET    | Interactive API documentation (Swagger UI) |
 
+
 ### Common errors
+
 
 | Status | Meaning                                                      |
 | ------ | ------------------------------------------------------------ |
@@ -102,6 +148,7 @@ A successful response is raw audio (typically MP3). Save it with `--output` as s
 | 502    | Translation output failed quality validation                 |
 | 503    | ElevenLabs timeout or configuration/auth problem             |
 | 500    | Unexpected failure during translation                        |
+
 
 Error bodies include a `detail` message you can show to users or logs.
 
@@ -117,6 +164,7 @@ Translation is not instant. The service clones a voice profile from your upload,
 
 ## Configuration reference
 
+
 | Variable           | Required | Description                                                                                   |
 | ------------------ | -------- | --------------------------------------------------------------------------------------------- |
 | `ELEVENV3_API_KEY` | Yes      | ElevenLabs API key used for voice clone, dubbing, and speech-to-speech                        |
@@ -124,11 +172,12 @@ Translation is not instant. The service clones a voice profile from your upload,
 | `MAX_UPLOAD_BYTES` | No       | Maximum upload size in bytes (default: 26214400, 25 MiB)                                      |
 | `CORS_ORIGINS`     | No       | Comma-separated browser origins allowed for the web client (default: `http://localhost:4321`) |
 
+
 If the key is missing or invalid, `/translate` returns **503** with an authentication-related message.
 
 ## Web client
 
-An Astro + TypeScript UI lives in [`client/`](client/). It uploads audio and calls the API from the browser.
+An Astro + TypeScript UI lives in `[client/](client/)`. It uploads audio and calls the API from the browser.
 
 ### Local development
 
@@ -145,12 +194,12 @@ Install client dependencies once:
 make client-install
 ```
 
-Copy [`client/.env.example`](client/.env.example) to `client/.env` if you need a production API URL or a dev-only `PUBLIC_DEV_API_KEY` when `SERVICE_API_KEY` is set on the API.
+Copy `[client/.env.example](client/.env.example)` to `client/.env` if you need a production API URL or a dev-only `PUBLIC_DEV_API_KEY` when `SERVICE_API_KEY` is set on the API.
 
 ### Production deployment
 
 - **Client:** build static assets with `make client-build` and deploy `client/dist/` to your static host.
-- **Vercel:** deploy from `client/` (or set the project root to `client`). [`client/vercel.json`](client/vercel.json) rewrites `/api/*` to the EC2 API (for API routes that use that prefix). Leave `PUBLIC_API_BASE_URL` unset so the browser calls `/translate` on your app origin in this client.
+- **Vercel:** deploy from `client/` (or set the project root to `client`). `[client/vercel.json](client/vercel.json)` rewrites `/api/`* to the EC2 API (for API routes that use that prefix). Leave `PUBLIC_API_BASE_URL` unset so the browser calls `/translate` on your app origin in this client.
 - **API:** set `CORS_ORIGINS` to your deployed app origin(s) only if the browser calls the API host directly (e.g. when `PUBLIC_API_BASE_URL` points at EC2). Same-origin proxying via Vercel does not require CORS changes.
 - **Client env (optional):** set `PUBLIC_API_BASE_URL` to a dedicated API origin (no trailing slash), e.g. `https://api.your-domain.com`, instead of using `/api` rewrites.
 
@@ -204,7 +253,7 @@ The upstream service may be slow or overloaded. Retry with a shorter clip or wai
 Use one of the supported extensions listed above.
 
 **422 Unsupported target language**  
-Use exactly `en`, `es`, `fr`, or `de`.
+Use a code from `[shared/languages.json](shared/languages.json)` (ISO 639-3, e.g. `spa` for Spanish).
 
 ## License and third-party services
 

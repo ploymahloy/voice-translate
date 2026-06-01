@@ -9,6 +9,7 @@ from tests.conftest import (
     patch_extract_voice_profile,
     patch_translate_and_synthesize,
     post_translate_one_second_wav,
+    skip_if_eleven_auth_failure,
     skip_without_elevenv3_key,
 )
 
@@ -29,4 +30,5 @@ def test_eleven_api_upstream_failure_returns_5xx(client, side_effect):
 def test_translate_happy_path_real_elevenlabs(client):
     skip_without_elevenv3_key()
     response = post_translate_one_second_wav(client)
+    skip_if_eleven_auth_failure(response)
     assert_valid_audio_response(response)

@@ -1,7 +1,6 @@
 import pytest
 
 from tests.conftest import (
-    SUPPORTED_LANGUAGES,
     VALID_TARGET_LANGUAGE,
     audio_file,
     post_translate,
@@ -42,7 +41,7 @@ def test_invalid_target_language(client, target_language):
 
     assert response.status_code == 422
     detail = response_detail_text(response).lower()
-    assert "supported" in detail or all(lang in detail for lang in SUPPORTED_LANGUAGES)
+    assert "supported" in detail
 
 def test_empty_audio_file(client):
     response = post_translate(

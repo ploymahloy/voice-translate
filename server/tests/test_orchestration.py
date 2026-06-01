@@ -24,13 +24,13 @@ def test_successful_orchestration(mock_extract, mock_translate):
     result = run_translation(
         source_audio=source,
         filename="clip.wav",
-        target_language="es",
+        target_language="spa",
     )
 
     mock_extract.assert_called_once()
     extract_path = mock_extract.call_args[0][0]
 
     mock_translate.assert_called_once_with(
-        FAKE_VOICE_PROFILE, "es", extract_path
+        FAKE_VOICE_PROFILE, "spa", extract_path
     )
     assert result == output

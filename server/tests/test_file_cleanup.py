@@ -21,7 +21,7 @@ def test_temp_files_removed_on_success(mock_extract, mock_translate):
         run_translation(
             source_audio=source,
             filename="clip.wav",
-            target_language="es",
+            target_language="spa",
         )
 
     for path in created:
@@ -39,7 +39,7 @@ def test_temp_files_removed_on_failure(mock_extract, mock_translate):
             run_translation(
                 source_audio=source,
                 filename="clip.wav",
-                target_language="es",
+                target_language="spa",
             )
 
     for path in created:

@@ -25,7 +25,7 @@ def test_output_validity_non_zero_size_and_valid_audio_header(
     output = run_translation(
         source_audio=one_second_wav_bytes(),
         filename="one_second.wav",
-        target_language="es",
+        target_language="spa",
     )
 
     assert_output_validity(output)
@@ -39,7 +39,7 @@ def test_output_duration_matches_input_within_tolerance(mock_extract, mock_trans
     output = run_translation(
         source_audio=one_second_wav_bytes(),
         filename="one_second.wav",
-        target_language="es",
+        target_language="spa",
     )
 
     assert_duration_within_tolerance(
@@ -58,5 +58,5 @@ def test_invalid_output_raises_output_quality_error(mock_extract, mock_translate
         run_translation(
             source_audio=one_second_wav_bytes(),
             filename="one_second.wav",
-            target_language="es",
+            target_language="spa",
         )

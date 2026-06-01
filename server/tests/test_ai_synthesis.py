@@ -11,16 +11,16 @@ FAKE_CLONED = b"fake-cloned-output"
 def test_translate_and_synthesize_dubs_then_applies_clone(
     mock_dub, mock_apply
 ):
-    result = translate_and_synthesize(FAKE_PROFILE, "es", "/tmp/input.wav")
+    result = translate_and_synthesize(FAKE_PROFILE, "spa", "/tmp/input.wav")
 
-    mock_dub.assert_called_once_with("/tmp/input.wav", "es")
+    mock_dub.assert_called_once_with("/tmp/input.wav", "spa")
     mock_apply.assert_called_once_with("cloned-voice-id", FAKE_DUBBED)
     assert result == FAKE_CLONED
 
 @patch("server.ai._dub_audio")
 def test_translate_and_synthesize_requires_voice_id(mock_dub):
     try:
-        translate_and_synthesize({}, "es", "/tmp/input.wav")
+        translate_and_synthesize({}, "spa", "/tmp/input.wav")
     except RuntimeError as exc:
         assert "missing voice id" in str(exc).lower()
     else:

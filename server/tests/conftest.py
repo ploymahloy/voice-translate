@@ -13,14 +13,14 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from server.config import SUPPORTED_LANGUAGES
 from server.main import create_app
 from tests.audio_helpers import assert_output_validity
 
 SUCCESS_AUDIO_MEDIA_TYPES = frozenset({"audio/mp3", "audio/wav"})
 
 TRANSLATE_URL = "/translate"
-VALID_TARGET_LANGUAGE = "es"
-SUPPORTED_LANGUAGES = ("en", "es", "fr", "de")
+VALID_TARGET_LANGUAGE = "spa"
 
 FAKE_VOICE_PROFILE = {"id": "test-profile"}
 VALID_SOURCE_BYTES = b"\x00\x01\x02"
@@ -171,7 +171,12 @@ def assert_upstream_error_response(response) -> None:
     assert content_type not in SUCCESS_AUDIO_MEDIA_TYPES
 
 def assert_valid_audio_response(response, *, min_bytes: int = 100) -> None:
-    assert response.status_code == 200
+    if response.status_code != 200:
+        detail = response_detail_text(response)
+        pytest.fail(
+            f"Expected HTTP 200, got {response.status_code}"
+            + (f": {detail}" if detail else "")
+        )
     content_type = response.headers.get("content-type", "").split(";")[0].strip()
     assert content_type in SUCCESS_AUDIO_MEDIA_TYPES
     assert_output_validity(response.content)
@@ -180,3 +185,14 @@ def assert_valid_audio_response(response, *, min_bytes: int = 100) -> None:
 def skip_without_elevenv3_key() -> None:
     if not os.environ.get("ELEVENV3_API_KEY", "").strip():
         pytest.skip("ELEVENV3_API_KEY not set")
+
+def skip_if_eleven_auth_failure(response) -> None:
+    """Skip integration tests when the key is set but rejected by ElevenLabs."""
+    if response.status_code not in (500, 503):
+        return
+    detail = response_detail_text(response).lower()
+    if "api key invalid" in detail or "invalid or expired" in detail:
+        pytest.skip(
+            "ELEVENV3_API_KEY is set but not accepted by ElevenLabs "
+            f"({response_detail_text(response)})"
+        )

@@ -74,7 +74,7 @@ describe('translateAudio', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const file = new File([audioBytes], 'clip.wav', { type: 'audio/wav' });
-    const result = await translateAudio(file, 'es', { env: {} });
+    const result = await translateAudio(file, 'spa', { env: {} });
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
@@ -82,7 +82,7 @@ describe('translateAudio', () => {
     expect(init.method).toBe('POST');
     expect(init.body).toBeInstanceOf(FormData);
     const form = init.body as FormData;
-    expect(form.get('target_language')).toBe('es');
+    expect(form.get('target_language')).toBe('spa');
     expect(result.contentType).toBe('audio/mpeg');
     expect(result.blob).toBeInstanceOf(Blob);
   });
