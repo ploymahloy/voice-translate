@@ -6,7 +6,27 @@ on:
   pull_request:
 
 jobs:
-  test:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      client: ${{ steps.filter.outputs.client }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'server/**'
+              - '.github/workflows/ci.yml'
+            client:
+              - 'client/**'
+              - '.github/workflows/ci.yml'
+
+  server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +51,9 @@ jobs:
         run: PYTHONPATH=. pyright server
 
   client:
+    needs: changes
+    if: needs.changes.outputs.client == 'true'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -60,25 +81,30 @@ jobs:
         run: npm run build
 
   deploy:
+    needs: [changes, server, client]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      (needs.server.result == 'success' || needs.server.result == 'skipped') &&
+      (needs.client.result == 'success' || needs.client.result == 'skipped') &&
+      (needs.changes.outputs.server == 'true' || needs.changes.outputs.client == 'true')
     runs-on: self-hosted
-    needs: [test, client]
-    if: github.event_name == 'push'
-
     steps:
       - name: Pull latest changes on EC2
         run: |
           cd /var/www/server
           git pull origin master
 
-      - name: Deploy Backend & Frontend
+      - name: Deploy backend
+        if: needs.changes.outputs.server == 'true'
         run: |
           cd /var/www/server
-
           pip install -r server/requirements.txt
+          make run
 
+      - name: Deploy frontend
+        if: needs.changes.outputs.client == 'true'
+        run: |
           cd client
           npm ci
           npm run build
-          cd ..
-
-          make run
