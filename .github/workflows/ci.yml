@@ -33,34 +33,6 @@ jobs:
 
       - name: Typecheck
         run: PYTHONPATH=. pyright server
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.11', '3.12']
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Set up pipx and install deps
-        run: |
-          python -m pip install --upgrade pipx
-          pipx install --python ${{ matrix.python-version }} pytest
-          pipx inject pytest -r server/requirements.txt
-          pipx install --python ${{ matrix.python-version }} pyright
-          pipx inject pyright -r server/requirements.txt
-          pipx ensurepath
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: Unit tests
-        run: PYTHONPATH=. pytest -c server/pytest.ini -v -m "not integration"
-
-      - name: Typecheck
-        run: PYTHONPATH=. pyright server
 
   client:
     runs-on: ubuntu-latest
@@ -106,14 +78,11 @@ jobs:
         run: |
           cd /var/www/server
 
-          # 1. Update backend dependencies if needed
           pip install -r server/requirements.txt
 
-          # 2. Build production frontend assets on the server
           cd client
           npm ci
           npm run build
           cd ..
 
-          # 3. Restart your production processes
           make run
