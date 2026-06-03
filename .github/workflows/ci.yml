@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -64,3 +64,30 @@ jobs:
       - name: Build client
         working-directory: client
         run: npm run build
+
+  deploy:
+    runs-on: self-hosted
+    needs: [test, client]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Pull latest changes on EC2
+        run: |
+          cd /var/www/server
+          git pull origin master
+
+      - name: Deploy Backend & Frontend
+        run: |
+          cd /var/www/server
+
+          # 1. Update backend dependencies if needed
+          pip install -r server/requirements.txt
+
+          # 2. Build production frontend assets on the server
+          cd client
+          npm ci
+          npm run build
+          cd ..
+
+          # 3. Restart your production processes
+          make run
