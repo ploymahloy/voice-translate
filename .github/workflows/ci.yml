@@ -93,7 +93,8 @@ jobs:
       - name: Pull latest changes on EC2
         run: |
           cd /var/www/server
-          git pull origin master
+          git checkout master
+          git fetch origin
 
       - name: Deploy backend
         if: needs.changes.outputs.server == 'true'
