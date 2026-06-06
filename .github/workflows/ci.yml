@@ -98,8 +98,8 @@ jobs:
       - name: Deploy backend
         if: needs.changes.outputs.server == 'true'
         run: |
-          cd /var/www/server
-          pip install -r server/requirements.txt
+          cd /var/www/server/
+          pip install -r requirements.txt
           make run
 
       - name: Deploy frontend
