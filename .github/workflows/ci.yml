@@ -109,8 +109,8 @@ jobs:
           git config --global --add safe.directory "$SRC"
           git fetch origin
           git reset --hard origin/master
-          rsync -a --delete --exclude .venv --exclude .env server/ /var/www/server/
-          rsync -a --delete shared/ /var/www/server/shared/
+          rsync -rl --delete --exclude .venv --exclude .env server/ /var/www/server/
+          rsync -rl --delete shared/ /var/www/server/shared/
 
       - name: Deploy backend
         run: |
