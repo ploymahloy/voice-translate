@@ -6,11 +6,10 @@ on:
   pull_request:
 
 jobs:
-  changes:
+  server-changes:
     runs-on: ubuntu-latest
     outputs:
       server: ${{ steps.filter.outputs.server }}
-      client: ${{ steps.filter.outputs.client }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -20,13 +19,24 @@ jobs:
             server:
               - 'server/**'
               - '.github/workflows/ci.yml'
+
+  client-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
             client:
               - 'client/**'
               - '.github/workflows/ci.yml'
 
   server:
-    needs: changes
-    if: needs.changes.outputs.server == 'true'
+    needs: server-changes
+    if: needs.server-changes.outputs.server == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,8 +61,8 @@ jobs:
         run: PYTHONPATH=. pyright server
 
   client:
-    needs: changes
-    if: needs.changes.outputs.client == 'true'
+    needs: client-changes
+    if: needs.client-changes.outputs.client == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -81,10 +91,10 @@ jobs:
         run: npm run build
 
   deploy-backend:
-    needs: [changes, server]
+    needs: [server-changes, server]
     if: |
       github.event_name == 'push' &&
-      needs.changes.outputs.server == 'true' &&
+      needs.server-changes.outputs.server == 'true' &&
       needs.server.result == 'success'
     runs-on: self-hosted
     steps:
