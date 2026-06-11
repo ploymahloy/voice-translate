@@ -1,9 +1,15 @@
 import os
 from pathlib import Path
 
-# `__file__` is `.../voice-translate/server/env.py`; repo root is two levels up.
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_DEFAULT_ENV_FILE = _PROJECT_ROOT / ".env"
+
+def project_root() -> Path:
+    here = Path(__file__).resolve().parent
+    if (here / "shared" / "languages.json").is_file():
+        return here
+    return here.parent
+
+
+_DEFAULT_ENV_FILE = project_root() / ".env"
 
 
 def load_env_file(path: Path | None = None) -> None:

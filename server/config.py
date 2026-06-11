@@ -1,8 +1,9 @@
 import json
 import os
-from pathlib import Path
 
-_LANGUAGES_PATH = Path(__file__).resolve().parents[1] / "shared" / "languages.json"
+from server.env import project_root
+
+_LANGUAGES_PATH = project_root() / "shared" / "languages.json"
 
 
 def _load_languages() -> tuple[tuple[str, str], ...]:

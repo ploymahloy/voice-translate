@@ -98,18 +98,25 @@ jobs:
       needs.server.result == 'success'
     runs-on: self-hosted
     steps:
-      - name: Pull latest changes on EC2
+      - name: Sync backend to /var/www/server
         run: |
-          cd /var/www/server
-          git config --global --add safe.directory /var/www/server
-          git checkout master
-          git pull origin master
+          SRC=/var/www/voice-translate-src
+          mkdir -p "$SRC"
+          if [ ! -d "$SRC/.git" ]; then
+            git clone https://github.com/ploymahloy/voice-translate.git "$SRC"
+          fi
+          cd "$SRC"
+          git config --global --add safe.directory "$SRC"
+          git fetch origin
+          git reset --hard origin/master
+          rsync -a --delete --exclude .venv --exclude .env server/ /var/www/server/
+          rsync -a --delete shared/ /var/www/server/shared/
 
       - name: Deploy backend
         run: |
           cd /var/www/server
           test -d .venv || python3 -m venv .venv
-          .venv/bin/pip install -r server/requirements.txt
-          sudo cp server/fastapi_app.service /etc/systemd/system/fastapi_app.service
+          .venv/bin/pip install -r requirements.txt
+          sudo cp fastapi_app.service /etc/systemd/system/fastapi_app.service
           sudo systemctl daemon-reload
-          make -C server deploy
+          make deploy
