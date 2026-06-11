@@ -8,6 +8,7 @@ User=ec2-user
 Group=ec2-user
 WorkingDirectory=/var/www/server
 Environment=PYTHONPATH=/var/www
+Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/var/www/server/.venv/bin/uvicorn server.main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=3
