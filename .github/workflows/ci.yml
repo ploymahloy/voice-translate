@@ -80,14 +80,12 @@ jobs:
         working-directory: client
         run: npm run build
 
-  deploy:
-    needs: [changes, server, client]
+  deploy-backend:
+    needs: [changes, server]
     if: |
-      always() &&
       github.event_name == 'push' &&
-      (needs.server.result == 'success' || needs.server.result == 'skipped') &&
-      (needs.client.result == 'success' || needs.client.result == 'skipped') &&
-      (needs.changes.outputs.server == 'true' || needs.changes.outputs.client == 'true')
+      needs.changes.outputs.server == 'true' &&
+      needs.server.result == 'success'
     runs-on: self-hosted
     steps:
       - name: Pull latest changes on EC2
@@ -98,7 +96,6 @@ jobs:
           git pull origin master
 
       - name: Deploy backend
-        if: needs.changes.outputs.server == 'true'
         run: |
           cd /var/www/server
           test -d .venv || python3 -m venv .venv
@@ -106,10 +103,3 @@ jobs:
           sudo cp server/fastapi_app.service /etc/systemd/system/fastapi_app.service
           sudo systemctl daemon-reload
           make -C server deploy
-
-      - name: Deploy frontend
-        if: needs.changes.outputs.client == 'true'
-        run: |
-          cd client
-          npm ci
-          npm run build
