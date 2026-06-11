@@ -94,14 +94,17 @@ jobs:
         run: |
           cd /var/www/server
           git checkout master
-          git fetch origin
+          git pull origin master
 
       - name: Deploy backend
         if: needs.changes.outputs.server == 'true'
         run: |
-          cd /var/www/server/
-          pip install -r requirements.txt
-          make run
+          cd /var/www/server
+          test -d .venv || python3 -m venv .venv
+          .venv/bin/pip install -r server/requirements.txt
+          sudo cp server/fastapi_app.service /etc/systemd/system/fastapi_app.service
+          sudo systemctl daemon-reload
+          make -C server deploy
 
       - name: Deploy frontend
         if: needs.changes.outputs.client == 'true'

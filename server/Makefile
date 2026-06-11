@@ -1,4 +1,4 @@
-.PHONY: deps run test test-integration typecheck check client-install client-dev client-build client-test client-check
+.PHONY: deps run deploy install-service test test-integration typecheck check client-install client-dev client-build client-test client-check
 
 deps:
 	python3 -m venv .venv
@@ -6,6 +6,14 @@ deps:
 
 run:
 	PYTHONPATH=.. .venv/bin/uvicorn server.main:app --reload --host 0.0.0.0 --port 8000
+
+deploy:
+	sudo systemctl restart fastapi_app
+
+install-service:
+	sudo cp fastapi_app.service /etc/systemd/system/fastapi_app.service
+	sudo systemctl daemon-reload
+	sudo systemctl enable fastapi_app
 
 test:
 	PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=.. .venv/bin/pytest -v -m "not integration"
