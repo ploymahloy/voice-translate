@@ -93,6 +93,7 @@ jobs:
       - name: Pull latest changes on EC2
         run: |
           cd /var/www/server
+          git config --global --add safe.directory /var/www/server
           git checkout master
           git pull origin master
 
