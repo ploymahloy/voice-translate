@@ -1,5 +1,7 @@
 # Voice Translate
 
+[![CI/CD](https://github.com/ploymahloy/voice-translate/actions/workflows/ci.yml/badge.svg)](https://github.com/ploymahloy/voice-translate/actions/workflows/ci.yml)
+
 Turn spoken audio into another language while keeping the speaker’s voice. Upload a recording, choose a target language, and receive translated speech that sounds like the original speaker.
 
 This service runs locally (or on your own server) and uses [ElevenLabs](https://elevenlabs.io) for voice cloning, dubbing, and speech synthesis. You need an ElevenLabs API key with access to voice cloning and dubbing.
