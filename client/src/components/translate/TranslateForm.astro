@@ -6,7 +6,9 @@ const acceptExtensions = ALLOWED_AUDIO_EXTENSIONS.join(',');
 
 <form class='translate-form' id='translate-form'>
 	<div class='field'>
-		<label for='source_audio'>Source audio <span class='hint'>({ALLOWED_AUDIO_EXTENSIONS.join(', ')})</span></label>
+		<label for='source_audio'
+			>Source audio <span class='hint'>({ALLOWED_AUDIO_EXTENSIONS.join(', ')} — max 25MB)</span></label
+		>
 		<input type='file' id='source_audio' name='source_audio' accept={acceptExtensions} required />
 	</div>
 
