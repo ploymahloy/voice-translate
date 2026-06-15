@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": ":path*",
-      "destination": "http://3.211.23.246:8000/:path*"
+      "source": "/translate",
+      "destination": "https://3.211.23.246/translate"
+    },
+    {
+      "source": "/health",
+      "destination": "https://3.211.23.246/health"
     }
   ]
 }
