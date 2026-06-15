@@ -7,7 +7,7 @@ export default defineConfig({
     server: {
       proxy: {
         '/translate': {
-          target: 'http://34.201.102.73',
+          target: 'http://3.211.23.246:8000/',
           changeOrigin: true,
         },
       },
