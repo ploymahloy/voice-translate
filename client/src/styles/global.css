@@ -45,6 +45,26 @@ body {
 	color: var(--text);
 }
 
+.api-notice-banner {
+	padding: 0.65rem 1.5rem;
+	text-align: center;
+	font-size: 0.9rem;
+	color: var(--muted);
+	background: var(--surface);
+	border-bottom: 1px solid var(--border);
+}
+
+.api-notice-banner a {
+	color: var(--accent);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.api-notice-banner a:hover {
+	color: var(--accent-hover);
+	text-decoration: underline;
+}
+
 .site-header {
 	padding: 2rem 1.5rem 1rem;
 	max-width: 40rem;
