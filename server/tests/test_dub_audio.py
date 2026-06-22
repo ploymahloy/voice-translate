@@ -9,9 +9,10 @@ def _json_response(payload: dict) -> MagicMock:
     return response
 
 
+@patch("server.ai._client.require_api_key")
 @patch("builtins.open", mock_open(read_data=b"audio"))
 @patch("server.ai._client.request")
-def test_dub_audio_uses_iso639_1_for_elevenlabs(mock_request):
+def test_dub_audio_uses_iso639_1_for_elevenlabs(mock_request, _mock_require_api_key):
     mock_request.side_effect = [
         _json_response({"dubbing_id": "dub-123"}),
         _json_response({"status": "dubbed"}),
