@@ -8,6 +8,8 @@ from typing import Literal
 
 import httpx
 
+from server.language_codes import elevenlabs_dubbing_language_code
+
 logger = logging.getLogger(__name__)
 
 _BASE_URL = "https://api.elevenlabs.io"
@@ -105,13 +107,14 @@ def extract_voice_profile(audio_path: str) -> dict:
 
 def _dub_audio(audio_path: str, target_language: str) -> bytes:
     _client.require_api_key(auth_context="eleven_api")
+    dubbing_language = elevenlabs_dubbing_language_code(target_language)
 
     with open(audio_path, "rb") as audio_file:
         create_response = _client.request(
             "POST",
             "/v1/dubbing",
             auth_context="eleven_api",
-            data={"source_lang": "auto", "target_lang": target_language},
+            data={"source_lang": "auto", "target_lang": dubbing_language},
             files={"file": (Path(audio_path).name, audio_file)},
         )
 
@@ -135,7 +138,7 @@ def _dub_audio(audio_path: str, target_language: str) -> bytes:
 
     audio_response = _client.request(
         "GET",
-        f"/v1/dubbing/{dubbing_id}/audio/{target_language}",
+        f"/v1/dubbing/{dubbing_id}/audio/{dubbing_language}",
         auth_context="eleven_api",
     )
     return audio_response.content
