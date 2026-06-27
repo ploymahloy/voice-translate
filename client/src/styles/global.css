@@ -41,6 +41,8 @@
 body {
 	margin: 0;
 	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 	background: var(--bg);
 	color: var(--text);
 }
@@ -66,27 +68,86 @@ body {
 }
 
 .site-header {
-	padding: 2rem 1.5rem 1rem;
-	max-width: 40rem;
-	margin: 0 auto;
+	padding: 1rem;
+	margin-bottom: 2rem;
+	background-color: var(--surface);
+	border-bottom: 1px solid var(--border);
 }
 
 .site-header h1 {
-	margin: 0 0 0.25rem;
+	margin: 0;
 	font-size: 1.75rem;
 	font-weight: 700;
 }
 
-.tagline {
-	margin: 0;
-	color: var(--muted);
-	font-size: 1rem;
-}
-
 main {
+	flex: 1;
 	max-width: 40rem;
 	margin: 0 auto;
-	padding: 0 1.5rem;
+	padding: 0 1.5rem 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.how-it-works {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	padding: 1.5rem;
+}
+
+.how-it-works h2 {
+	margin: 0 0 0.5rem;
+	font-size: 1.1rem;
+}
+
+.how-it-works-intro {
+	margin: 0;
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+.how-it-works-steps {
+	margin: 0;
+	padding-left: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+
+.how-it-works-steps li {
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+.how-it-works-steps strong {
+	color: var(--text);
+}
+
+.site-footer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 1.25rem 1.5rem;
+	font-size: 0.875rem;
+	color: var(--muted);
+	border-top: 1px solid var(--border);
+}
+
+.site-footer-separator {
+	color: var(--muted);
+}
+
+.site-footer-github {
+	display: flex;
+	color: var(--muted);
+	text-decoration: none;
+}
+
+.site-footer-github:hover {
+	color: var(--accent);
 }
 
 .translate-form {
@@ -97,6 +158,10 @@ main {
 	display: flex;
 	flex-direction: column;
 	gap: 1.25rem;
+}
+
+.translate-form h2 {
+	margin: 0;
 }
 
 .field label {
