@@ -1,4 +1,4 @@
-# Voice Translate
+# Voice Translator
 
 [CI/CD](https://github.com/ploymahloy/voice-translate/actions/workflows/ci.yml)
 
