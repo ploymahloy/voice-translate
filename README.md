@@ -1,6 +1,6 @@
 # Voice Translator
 
-[CI/CD](https://github.com/ploymahloy/voice-translate/actions/workflows/ci.yml)
+[![CI/CD Pipeline](https://github.com/ploymahloy/voice-translate/actions/workflows/ci.yml/badge.svg)](https://github.com/ploymahloy/voice-translate/actions/workflows/ci.yml)
 
 ## Inspiration
 
